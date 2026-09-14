@@ -19,12 +19,6 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 
-# ---- production-only dependency tree, for the runtime image ---------------
-FROM base AS prod-deps
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
-
-
 # ---- build ----------------------------------------------------------------
 FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
@@ -45,6 +39,8 @@ ENV PUBLIC_SANITY_PROJECT_ID=$PUBLIC_SANITY_PROJECT_ID \
     PUBLIC_UMAMI_WEBSITE_ID=$PUBLIC_UMAMI_WEBSITE_ID \
     NODE_ENV=production
 
+# `build` also runs verify:runtime, which fails loudly if anything escapes
+# the server bundle that the runtime stage below would not ship.
 RUN npm run build
 
 
@@ -54,7 +50,12 @@ ENV NODE_ENV=production \
     HOST=0.0.0.0 \
     PORT=4321
 
-COPY --from=prod-deps --chown=node:node /app/node_modules ./node_modules
+# The server is built with ssr.noExternal, so dist/ carries its own
+# dependencies. Only picomatch refuses to bundle, so that is all the runtime
+# needs — a few hundred kilobytes instead of the whole installed tree, most of
+# which is the Studio's client-side bundle and is already inside dist/client.
+# scripts/check-runtime-externals.mjs fails the build if that stops being true.
+COPY --from=build --chown=node:node /app/node_modules/picomatch ./node_modules/picomatch
 COPY --from=build --chown=node:node /app/dist ./dist
 COPY --chown=node:node package.json ./
 

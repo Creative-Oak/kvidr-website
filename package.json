@@ -5,11 +5,12 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && npm run verify:runtime",
     "preview": "astro preview",
     "start": "node ./dist/server/entry.mjs",
     "astro": "astro",
-    "check": "astro check"
+    "check": "astro check",
+    "verify:runtime": "node scripts/check-runtime-externals.mjs"
   },
   "dependencies": {
     "@astrojs/node": "^11.1.5",
@@ -37,11 +38,14 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@types/react-is": "^19.3.0",
+    "sharp": "^0.34.5",
     "typescript": "^6.0.3"
   },
   "allowScripts": {
     "esbuild@0.28.2": true,
-    "fsevents@2.3.3": true
+    "fsevents@2.3.3": true,
+    "sharp@0.35.4": true,
+    "sharp@0.34.5": true
   },
   "overrides": {
     "@sanity/visual-editing": "$@sanity/visual-editing"

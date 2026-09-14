@@ -84,6 +84,33 @@ CONTACT_TO_EMAIL=…
 The container runs as a non-root user and has a healthcheck on `/robots.txt` — chosen so a
 Sanity outage does not restart the container.
 
+### Why the image is small
+
+The server is built with `ssr.noExternal`, so its dependencies are inlined into `dist/`
+rather than left as bare imports. That matters more than it sounds: only about twenty
+packages are reachable from the server, but a plain `npm ci --omit=dev` installs the whole
+declared tree — including `sanity`, `@sentry`, `hls.js` and friends, which are **client-side
+only** and already compiled into `dist/client`. That was 620 MB of `node_modules` to serve a
+landing page.
+
+Bundled, the only package that refuses to inline is `picomatch`, so the runtime stage copies
+that one directory and nothing else: **116 KB of `node_modules`, 245 MB total**, of which
+227 MB is the `node:22-alpine` base.
+
+Two things hold this together, and both matter if you change dependencies:
+
+- `npm run build` also runs `scripts/check-runtime-externals.mjs`, which **fails the build**
+  if anything new escapes the bundle. Without it, a new dependency would sail through CI and
+  then crash the container on boot with a module-not-found. If it fires, add the package to
+  `ALLOWED` in that script *and* to the Dockerfile runtime stage.
+- Bundling is applied by an integration that only runs on `command === 'build'`. Do not move
+  it into `vite.ssr` directly: in dev, Vite pushes CommonJS packages such as React through its
+  SSR transform and the dev server will not boot.
+
+Astro's image optimiser is switched to `passthroughImageService()`, because every image here
+is resized by Sanity's CDN. That keeps `sharp` and its ~27 MB of platform binaries out of the
+runtime entirely.
+
 ### CORS
 
 `https://kvidr.app` and `https://www.kvidr.app` are already allowed on the Sanity project.
@@ -98,9 +125,10 @@ npx sanity cors add https://example.com --credentials
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Dev server with live preview. |
-| `npm run build` | Production build into `dist/`. |
+| `npm run build` | Production build into `dist/`, then verifies runtime externals. |
 | `npm run start` | Runs the built server (what the container does). |
 | `npm run check` | Astro + TypeScript diagnostics. |
+| `npm run verify:runtime` | Checks the built server only imports what the image ships. |
 | `node scripts/og.mjs` | Regenerates `public/og.png` and `public/apple-touch-icon.png`. |
 | `SANITY_WRITE_TOKEN=… node scripts/seed.mjs` | Re-seeds the dataset. **Overwrites Studio edits** — for bootstrapping only. |
 
