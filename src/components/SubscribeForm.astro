@@ -1,0 +1,155 @@
+---
+interface Props {
+  label?: string
+  placeholder?: string
+  note?: string
+  id?: string
+}
+
+const {
+  label = 'Keep me posted',
+  placeholder = 'you@example.com',
+  note = 'One email when there is something real to download. Nothing else, ever.',
+  id = 'subscribe',
+} = Astro.props
+---
+
+<form class="sub" data-subscribe novalidate>
+  <div class="sub__field glass">
+    <label class="visually-hidden" for={id}>Email address</label>
+    <input
+      id={id}
+      class="sub__input"
+      type="email"
+      name="email"
+      placeholder={placeholder}
+      autocomplete="email"
+      required
+    />
+    <button class="btn btn--accent sub__btn" type="submit">
+      <span data-idle>{label}</span>
+      <span data-busy hidden>Sending…</span>
+    </button>
+  </div>
+
+  <p class="t-small sub__note" data-note>{note}</p>
+  <p class="t-small sub__status" data-status role="status" aria-live="polite" hidden></p>
+</form>
+
+<style>
+  .sub {
+    width: 100%;
+    max-width: 30rem;
+  }
+
+  .sub__field {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.35rem 0.35rem 0.4rem;
+    border-radius: 999px;
+  }
+
+  .sub__input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.55rem 0.85rem;
+    border: 0;
+    background: transparent;
+    font-size: 0.9375rem;
+    color: var(--ink);
+  }
+
+  .sub__input::placeholder {
+    color: var(--ink-3);
+  }
+
+  .sub__input:focus {
+    outline: none;
+  }
+
+  .sub__field:focus-within {
+    border-color: var(--accent);
+    box-shadow: inset 0 1px 0 0 var(--glass-specular), 0 0 0 3px var(--accent-wash);
+  }
+
+  .sub__btn {
+    flex: none;
+  }
+
+  .sub__note,
+  .sub__status {
+    margin-top: 0.75rem;
+    color: var(--ink-3);
+    max-width: 38ch;
+  }
+
+  .sub__status[data-state='ok'] {
+    color: var(--accent);
+  }
+
+  .sub__status[data-state='error'] {
+    color: #b4483d;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .sub__status[data-state='error'] {
+      color: #e58a7e;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>('form[data-subscribe]').forEach((form) => {
+    const input = form.querySelector<HTMLInputElement>('input[name="email"]')!
+    const status = form.querySelector<HTMLParagraphElement>('[data-status]')!
+    const note = form.querySelector<HTMLParagraphElement>('[data-note]')!
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!
+    const idle = button.querySelector<HTMLElement>('[data-idle]')!
+    const busy = button.querySelector<HTMLElement>('[data-busy]')!
+
+    const say = (message: string, state: 'ok' | 'error') => {
+      status.textContent = message
+      status.dataset.state = state
+      status.hidden = false
+      note.hidden = true
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault()
+
+      const email = input.value.trim()
+      if (!email || !input.checkValidity()) {
+        say('That email address does not look right.', 'error')
+        input.focus()
+        return
+      }
+
+      button.disabled = true
+      idle.hidden = true
+      busy.hidden = false
+
+      try {
+        const response = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({email}),
+        })
+        const data = await response.json().catch(() => ({}))
+
+        if (response.ok) {
+          form.querySelector('.sub__field')?.setAttribute('hidden', '')
+          say(data.message ?? 'You are on the list. Thank you.', 'ok')
+        } else {
+          say(data.message ?? 'Something went wrong. Try again in a moment.', 'error')
+        }
+      } catch {
+        say('Could not reach the server. Try again in a moment.', 'error')
+      } finally {
+        button.disabled = false
+        idle.hidden = false
+        busy.hidden = true
+      }
+    })
+  })
+</script>

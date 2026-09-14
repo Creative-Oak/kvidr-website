@@ -1,0 +1,77 @@
+---
+import PageHeader from '../components/PageHeader.astro'
+import PortableText from '../components/PortableText.astro'
+import SanityImage from '../components/SanityImage.astro'
+import Layout from '../layouts/Layout.astro'
+import {loadQuery} from '../sanity/lib/load-query'
+import {aboutPageQuery} from '../sanity/lib/queries'
+
+const {data: page} = await loadQuery<any>({query: aboutPageQuery})
+---
+
+<Layout title="About" description={page?.seo?.description ?? page?.lede} image={page?.seo?.image}>
+  <PageHeader
+    eyebrow={page?.eyebrow ?? 'About'}
+    headline={page?.headline ?? 'About kvidr'}
+    lede={page?.lede}
+  />
+
+  <section class="section">
+    <div class="shell about">
+      <div class="about__body" data-reveal>
+        <PortableText value={page?.body} />
+      </div>
+
+      {
+        page?.portrait?.asset && (
+          <aside class="about__aside" data-reveal style="--reveal-delay:100ms">
+            <SanityImage
+              image={page.portrait}
+              alt={page.portrait.alt ?? ''}
+              sizes="(max-width: 62rem) 60vw, 20rem"
+              class="about__portrait"
+            />
+            {page.portrait.caption && (
+              <p class="t-small about__caption">{page.portrait.caption}</p>
+            )}
+          </aside>
+        )
+      }
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .section {
+    padding-top: 0;
+  }
+
+  .about {
+    display: grid;
+    gap: clamp(2.5rem, 6vw, 5rem);
+    align-items: start;
+  }
+
+  @media (min-width: 62rem) {
+    .about {
+      grid-template-columns: minmax(0, 1fr) 20rem;
+    }
+
+    .about__aside {
+      position: sticky;
+      top: 7.5rem;
+      order: 2;
+    }
+  }
+
+  .about__portrait {
+    width: 100%;
+    border-radius: var(--radius-m);
+    border: 1px solid var(--rule);
+  }
+
+  .about__caption {
+    margin-top: 0.85rem;
+    color: var(--ink-3);
+  }
+</style>

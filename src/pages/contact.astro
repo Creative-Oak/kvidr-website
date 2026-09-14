@@ -1,0 +1,103 @@
+---
+import ContactForm from '../components/ContactForm.astro'
+import PageHeader from '../components/PageHeader.astro'
+import PortableText from '../components/PortableText.astro'
+import Layout from '../layouts/Layout.astro'
+import {loadQuery} from '../sanity/lib/load-query'
+import {contactPageQuery, siteSettingsQuery} from '../sanity/lib/queries'
+import {clean} from '../sanity/lib/stega'
+
+const [{data: page}, {data: settings}] = await Promise.all([
+  loadQuery<any>({query: contactPageQuery}),
+  loadQuery<any>({query: siteSettingsQuery}),
+])
+
+// Both land in href attributes, so the stega characters have to come off.
+const contactEmail = clean(settings?.contactEmail)
+const githubUrl = clean(settings?.githubUrl)
+---
+
+<Layout
+  title="Contact"
+  description={page?.seo?.description ?? page?.lede}
+  image={page?.seo?.image}
+>
+  <PageHeader
+    eyebrow={page?.eyebrow ?? 'Contact'}
+    headline={page?.headline ?? 'Get in touch'}
+    lede={page?.lede}
+  />
+
+  <section class="section">
+    <div class="shell contact">
+      <div data-reveal>
+        <ContactForm />
+      </div>
+
+      <aside class="contact__aside" data-reveal style="--reveal-delay:100ms">
+        <PortableText value={page?.body} />
+
+        <dl class="contact__meta">
+          {
+            contactEmail && (
+              <div>
+                <dt class="t-label">Email</dt>
+                <dd>
+                  <a class="link" href={`mailto:${contactEmail}`}>
+                    {contactEmail}
+                  </a>
+                </dd>
+              </div>
+            )
+          }
+          {
+            githubUrl && (
+              <div>
+                <dt class="t-label">Bugs and features</dt>
+                <dd>
+                  <a
+                    class="link"
+                    href={`${githubUrl}/issues`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Open an issue on GitHub
+                  </a>
+                </dd>
+              </div>
+            )
+          }
+        </dl>
+      </aside>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .section {
+    padding-top: 0;
+  }
+
+  .contact {
+    display: grid;
+    gap: clamp(2.5rem, 6vw, 5rem);
+    align-items: start;
+  }
+
+  @media (min-width: 62rem) {
+    .contact {
+      grid-template-columns: minmax(0, 1fr) 22rem;
+    }
+  }
+
+  .contact__meta {
+    margin: 2.5rem 0 0;
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .contact__meta dd {
+    margin: 0.4rem 0 0;
+    font-size: 0.9375rem;
+  }
+</style>

@@ -1,0 +1,196 @@
+---
+import AppMock from './AppMock.astro'
+import SanityImage from './SanityImage.astro'
+
+interface Props {
+  image?: any
+  title?: string
+  caption?: string
+  /** Hero frames get a wider glow and eager loading. */
+  hero?: boolean
+  compactMock?: boolean
+  sizes?: string
+  class?: string
+}
+
+const {
+  image,
+  title,
+  caption,
+  hero = false,
+  compactMock = false,
+  sizes = '(max-width: 62rem) 92vw, 62rem',
+  class: className = '',
+} = Astro.props
+
+const hasImage = Boolean(image?.asset)
+const windowTitle = title ?? image?.windowTitle ?? 'kvidr'
+const windowCaption = caption ?? image?.caption
+---
+
+<figure class={`frame ${hero ? 'frame--hero' : ''} ${className}`}>
+  <div class="frame__glow" aria-hidden="true"></div>
+
+  <div class="frame__window">
+    <div class="frame__titlebar glass">
+      <span class="frame__lights" aria-hidden="true">
+        <i class="frame__light frame__light--close"></i>
+        <i class="frame__light frame__light--min"></i>
+        <i class="frame__light frame__light--zoom"></i>
+      </span>
+      <span class="frame__title">{windowTitle}</span>
+    </div>
+
+    <div class="frame__body">
+      {
+        hasImage ? (
+          <SanityImage
+            image={image}
+            alt={image?.alt ?? `${windowTitle} — screenshot`}
+            sizes={sizes}
+            loading={hero ? 'eager' : 'lazy'}
+            class="frame__img"
+          />
+        ) : (
+          <AppMock compact={compactMock} />
+        )
+      }
+    </div>
+  </div>
+
+  {
+    windowCaption && (
+      <figcaption class="frame__caption t-small">
+        {windowCaption}
+      </figcaption>
+    )
+  }
+
+  {
+    !hasImage && (
+      <p class="frame__stub t-label">
+        <span class="frame__stubdot" /> Illustration — real screenshots land with the first Mac build
+      </p>
+    )
+  }
+</figure>
+
+<style>
+  .frame {
+    position: relative;
+    margin: 0;
+  }
+
+  /* A soft ink-blue aurora behind the window, not on it. */
+  .frame__glow {
+    position: absolute;
+    inset: -6% -4% 2%;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(
+        58% 62% at 28% 18%,
+        color-mix(in srgb, var(--accent) 26%, transparent) 0%,
+        transparent 70%
+      ),
+      radial-gradient(
+        52% 56% at 82% 66%,
+        color-mix(in srgb, var(--accent) 15%, transparent) 0%,
+        transparent 72%
+      );
+    filter: blur(56px);
+    opacity: 0.85;
+  }
+
+  .frame--hero .frame__glow {
+    inset: -12% -10% -2%;
+    filter: blur(80px);
+  }
+
+  .frame__window {
+    position: relative;
+    z-index: 1;
+    border-radius: var(--radius-window);
+    overflow: hidden;
+    background: var(--paper-raised);
+    border: 1px solid var(--rule);
+    box-shadow: var(--window-shadow);
+  }
+
+  /* The title bar is the floating layer, so it gets the glass. */
+  .frame__titlebar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 2.25rem;
+    padding-inline: 0.85rem;
+    border: 0;
+    border-bottom: 1px solid var(--rule);
+    border-radius: 0;
+  }
+
+  .frame__lights {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .frame__light {
+    width: 0.72rem;
+    height: 0.72rem;
+    border-radius: 50%;
+    box-shadow: inset 0 0.5px 1px rgba(255, 255, 255, 0.55),
+      inset 0 -0.5px 1px rgba(0, 0, 0, 0.14);
+  }
+
+  .frame__light--close { background: #f0685f; }
+  .frame__light--min { background: #f6bb4f; }
+  .frame__light--zoom { background: #61c455; }
+
+  .frame__title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--ink-2);
+  }
+
+  .frame__body {
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+  }
+
+  .frame__body > :global(.frame__img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+
+  .frame__caption {
+    margin-top: 1rem;
+    max-width: 46ch;
+  }
+
+  .frame__stub {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    color: var(--ink-3);
+  }
+
+  .frame__stubdot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex: none;
+  }
+
+  @media (max-width: 40rem) {
+    .frame__body {
+      aspect-ratio: 4 / 3;
+    }
+  }
+</style>

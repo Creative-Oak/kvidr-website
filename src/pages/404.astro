@@ -1,0 +1,43 @@
+---
+import Layout from '../layouts/Layout.astro'
+---
+
+<Layout title="Not found" noindex>
+  <section class="nf">
+    <div class="shell">
+      <p class="t-label" data-reveal>Error 404</p>
+      <h1 class="t-h2 nf__title" data-reveal style="--reveal-delay:60ms">
+        That page has gone quiet.
+      </h1>
+      <p class="t-lede measure-tight nf__lede" data-reveal style="--reveal-delay:120ms">
+        The link is wrong, or the page moved. Neither is your fault.
+      </p>
+      <div class="nf__actions" data-reveal style="--reveal-delay:180ms">
+        <a class="btn" href="/">Back to the front</a>
+        <a class="btn btn--ghost" href="/blog">Read the blog</a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .nf {
+    padding-block: clamp(5rem, 14vw, 11rem);
+  }
+
+  .nf__title {
+    margin-top: 1.5rem;
+    max-width: 16ch;
+  }
+
+  .nf__lede {
+    margin-top: 1.5rem;
+  }
+
+  .nf__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2.5rem;
+  }
+</style>

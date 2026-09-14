@@ -1,0 +1,94 @@
+---
+import {parseShortcut} from '../lib/keys'
+import {clean} from '../sanity/lib/stega'
+
+interface Props {
+  shortcuts: {_key?: string; keys: string; action: string}[]
+}
+
+const {shortcuts} = Astro.props
+---
+
+<ul class="shortcuts" role="list">
+  {
+    shortcuts.map((s, i) => (
+      <li class="shortcut" data-reveal style={`--reveal-delay:${Math.min(i, 10) * 45}ms`}>
+        <span class="shortcut__keys">
+          {parseShortcut(clean(s.keys)).map((alternative, index) => (
+            <>
+              {index > 0 && <span class="shortcut__or">or</span>}
+              <span class="shortcut__combo">
+                {alternative.map((key) => (
+                  <kbd class="kbd">{key}</kbd>
+                ))}
+              </span>
+            </>
+          ))}
+        </span>
+        <span class="shortcut__action">{s.action}</span>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .shortcuts {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+    gap: 0 clamp(1.5rem, 4vw, 3.5rem);
+  }
+
+  .shortcut {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-block: 0.7rem;
+    border-bottom: 1px solid var(--rule);
+    transition: border-color 0.25s var(--ease);
+  }
+
+  .shortcut:hover {
+    border-color: var(--accent);
+  }
+
+  .shortcut__keys {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex: none;
+    min-width: 5.5rem;
+  }
+
+  .shortcut__combo {
+    display: flex;
+    gap: 0.2rem;
+  }
+
+  .shortcut__or {
+    font-size: 0.6875rem;
+    color: var(--ink-3);
+  }
+
+  .shortcut__action {
+    font-size: 0.9375rem;
+    color: var(--ink-2);
+    line-height: 1.35;
+  }
+
+  /* The keycap presses when you hover the row. */
+  .shortcut:hover .kbd {
+    transform: translateY(0.5px);
+    box-shadow: inset 0 1px 0 var(--glass-specular), inset 0 -0.5px 0 rgba(26, 27, 32, 0.07),
+      0 0.5px 1px rgba(26, 27, 32, 0.08);
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+
+  .kbd {
+    transition: transform 0.16s var(--ease), color 0.16s var(--ease),
+      border-color 0.16s var(--ease), box-shadow 0.16s var(--ease);
+  }
+</style>

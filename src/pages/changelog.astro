@@ -1,0 +1,108 @@
+---
+import PageHeader from '../components/PageHeader.astro'
+import PortableText from '../components/PortableText.astro'
+import Layout from '../layouts/Layout.astro'
+import {loadQuery} from '../sanity/lib/load-query'
+import {changelogQuery} from '../sanity/lib/queries'
+
+const {data: entries} = await loadQuery<any[]>({query: changelogQuery})
+
+const formatDate = (value: string) =>
+  new Date(value).toLocaleDateString('en-GB', {day: 'numeric', month: 'long', year: 'numeric'})
+---
+
+<Layout
+  title="Changelog"
+  description="Every release of kvidr, and what changed in it."
+>
+  <PageHeader
+    eyebrow="Changelog"
+    headline={'Every release,\nand what changed.'}
+    lede="Version by version. Nothing is quietly dropped from this list."
+  />
+
+  <section class="section">
+    <div class="shell">
+      {
+        entries?.length ? (
+          <ol class="log" role="list">
+            {entries.map((entry: any) => (
+              <li class="log__entry" data-reveal>
+                <div class="log__meta">
+                  <span class="log__version">v{entry.version}</span>
+                  <time class="t-small log__date" datetime={entry.releasedAt}>
+                    {formatDate(entry.releasedAt)}
+                  </time>
+                </div>
+
+                <div class="log__content">
+                  <h2 class="t-h3 log__headline">{entry.headline}</h2>
+                  <PortableText value={entry.body} class="log__body" />
+                </div>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p class="t-lede">No releases yet.</p>
+        )
+      }
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .section {
+    padding-top: 0;
+  }
+
+  .log {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .log__entry {
+    display: grid;
+    gap: 1rem clamp(2rem, 6vw, 5rem);
+    padding-block: clamp(2.25rem, 5vw, 3.5rem);
+    border-top: 1px solid var(--rule);
+  }
+
+  .log__entry:last-child {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  @media (min-width: 62rem) {
+    .log__entry {
+      grid-template-columns: 10.5rem minmax(0, 1fr);
+    }
+
+    .log__meta {
+      position: sticky;
+      top: 7.5rem;
+    }
+  }
+
+  .log__version {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  .log__date {
+    display: block;
+    margin-top: 0.3rem;
+    color: var(--ink-3);
+  }
+
+  .log__headline {
+    max-width: 28ch;
+    color: var(--ink);
+  }
+
+  .log__content :global(.log__body) {
+    margin-top: 1.25rem;
+  }
+</style>

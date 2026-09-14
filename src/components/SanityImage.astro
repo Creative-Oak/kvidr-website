@@ -1,0 +1,55 @@
+---
+import {imageDimensions, urlForImage} from '../sanity/lib/image'
+import {clean} from '../sanity/lib/stega'
+
+interface Props {
+  image: any
+  alt?: string
+  sizes?: string
+  widths?: number[]
+  loading?: 'lazy' | 'eager'
+  class?: string
+  quality?: number
+}
+
+const {
+  image,
+  alt,
+  sizes = '100vw',
+  widths = [480, 768, 1024, 1440, 1920, 2560],
+  loading = 'lazy',
+  class: className = '',
+  quality = 82,
+} = Astro.props
+
+const dims = imageDimensions(image)
+const maxWidth = dims?.width ?? 2560
+const usable = widths.filter((w) => w <= maxWidth)
+if (usable.length === 0) usable.push(maxWidth)
+
+const srcset = usable
+  .map((w) => `${urlForImage(image).width(w).quality(quality).url()} ${w}w`)
+  .join(', ')
+
+const src = urlForImage(image)
+  .width(usable[usable.length - 1])
+  .quality(quality)
+  .url()
+
+const lqip = clean(image?.lqip)
+---
+
+<img
+  class={className}
+  src={src}
+  srcset={srcset}
+  sizes={sizes}
+  alt={clean(alt ?? image?.alt ?? '')}
+  width={dims?.width}
+  height={dims?.height}
+  loading={loading}
+  decoding="async"
+  style={lqip
+    ? `background-image:url(${lqip});background-size:cover;background-position:center;`
+    : undefined}
+/>

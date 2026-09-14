@@ -1,0 +1,25 @@
+---
+interface Props {
+  num: string
+  children?: unknown
+}
+const {num} = Astro.props
+---
+
+<div class="spine__label t-label" data-reveal>
+  <span class="spine__num">{num}</span>
+  <span class="spine__text"><slot /></span>
+</div>
+
+<style>
+  .spine__text {
+    display: block;
+  }
+
+  @media (min-width: 62rem) {
+    .spine__label {
+      padding-top: 0.7rem;
+      border-top: 1px solid var(--rule);
+    }
+  }
+</style>

@@ -1,0 +1,533 @@
+---
+import Glyph from '../components/Glyph.astro'
+import PortableText from '../components/PortableText.astro'
+import SectionLabel from '../components/SectionLabel.astro'
+import ShortcutList from '../components/ShortcutList.astro'
+import SubscribeForm from '../components/SubscribeForm.astro'
+import WindowFrame from '../components/WindowFrame.astro'
+import Layout from '../layouts/Layout.astro'
+import {loadQuery} from '../sanity/lib/load-query'
+import {homePageQuery, siteSettingsQuery} from '../sanity/lib/queries'
+import {clean} from '../sanity/lib/stega'
+
+const [{data: home}, {data: settings}] = await Promise.all([
+  loadQuery<any>({query: homePageQuery}),
+  loadQuery<any>({query: siteSettingsQuery}),
+])
+
+const headline = home?.headline ?? 'Nextcloud Talk,\nfinally at home\non the Mac.'
+const downloadUrl = clean(settings?.downloadUrl)
+const githubUrl = clean(settings?.githubUrl)
+const hasDownload = Boolean(downloadUrl)
+---
+
+<Layout
+  title={home?.seo?.title ? undefined : undefined}
+  description={home?.seo?.description}
+  image={home?.seo?.image}
+>
+  <!-- ================= Hero ================= -->
+  <section class="hero">
+    <div class="shell">
+      {home?.eyebrow && <p class="t-label hero__eyebrow" data-reveal>{home.eyebrow}</p>}
+
+      <h1 class="t-hero hero__headline" data-reveal style="--reveal-delay:60ms">
+        {headline}
+      </h1>
+
+      <div class="hero__row">
+        <div class="hero__pitch" data-reveal style="--reveal-delay:140ms">
+          <p class="t-lede">{home?.lede}</p>
+
+          <div class="hero__actions">
+            {
+              hasDownload ? (
+                <a class="btn btn--accent" href={downloadUrl}>
+                  Download for macOS
+                </a>
+              ) : (
+                githubUrl && (
+                  <a
+                    class="btn"
+                    href={githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Read the source
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M7 17 17 7M9 7h8v8" />
+                    </svg>
+                  </a>
+                )
+              )
+            }
+            <a class="btn btn--ghost" href="#keyboard">See the shortcuts</a>
+          </div>
+
+          {
+            home?.statusNote && (
+              <p class="t-small hero__status">
+                <span class="hero__dot" aria-hidden="true" />
+                {home.statusNote}
+              </p>
+            )
+          }
+        </div>
+      </div>
+
+      <div class="hero__frame" data-reveal style="--reveal-delay:220ms">
+        <WindowFrame image={home?.heroScreenshot} hero sizes="(max-width: 80rem) 92vw, 74rem" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 01 The problem ================= -->
+  {
+    home?.problemHeading && (
+      <section class="section section--ruled">
+        <div class="shell spine">
+          <SectionLabel num="01">The problem</SectionLabel>
+
+          <div>
+            <h2 class="t-h2 measure-tight" data-reveal>{home.problemHeading}</h2>
+            <div class="problem__body" data-reveal style="--reveal-delay:80ms">
+              <PortableText value={home.problemBody} />
+            </div>
+
+            {home.problemScreenshot?.asset && (
+              <div class="problem__shot" data-reveal style="--reveal-delay:140ms">
+                <WindowFrame
+                  image={home.problemScreenshot}
+                  sizes="(max-width: 62rem) 92vw, 48rem"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- ================= 02 How it feels ================= -->
+  {
+    home?.qualities?.length > 0 && (
+      <section class="section section--ruled">
+        <div class="shell spine">
+          <SectionLabel num="02">How it feels</SectionLabel>
+
+          <div>
+            <h2 class="t-h2 measure-tight" data-reveal>{home.qualitiesHeading}</h2>
+
+            <ol class="qualities" role="list">
+              {home.qualities.map((q: any, i: number) => (
+                <li class="quality" data-reveal style={`--reveal-delay:${i * 70}ms`}>
+                  <span class="t-label quality__num">{String(i + 1).padStart(2, '0')}</span>
+                  <h3 class="t-h3 quality__title">{q.title}</h3>
+                  <p class="t-prose quality__body">{q.body}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- ================= 03 Features ================= -->
+  {
+    home?.features?.length > 0 && (
+      <section class="section section--ruled">
+        <div class="shell spine">
+          <SectionLabel num="03">What it does</SectionLabel>
+
+          <div>
+            <h2 class="t-h2 measure-tight" data-reveal>{home.featuresHeading}</h2>
+            {home.featuresIntro && (
+              <p class="t-lede features__intro measure" data-reveal style="--reveal-delay:70ms">
+                {home.featuresIntro}
+              </p>
+            )}
+
+            <ul class="features" role="list">
+              {home.features.map((f: any, i: number) => (
+                <li class="feature" data-reveal style={`--reveal-delay:${Math.min(i, 8) * 55}ms`}>
+                  <span class="feature__icon" aria-hidden="true">
+                    <Glyph name={f.symbol ?? 'bubble'} size={18} />
+                  </span>
+                  <h3 class="feature__title">{f.title}</h3>
+                  <p class="t-small feature__body">{f.body}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {home.featureScreenshots?.length > 0 && (
+          <div class="gallery" data-reveal>
+            <div class="gallery__track">
+              {home.featureScreenshots.map((shot: any) => (
+                <div class="gallery__item">
+                  <WindowFrame image={shot} sizes="(max-width: 48rem) 84vw, 38rem" />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </section>
+    )
+  }
+
+  <!-- ================= 04 Keyboard ================= -->
+  {
+    home?.shortcuts?.length > 0 && (
+      <section class="section section--ruled" id="keyboard">
+        <div class="shell spine">
+          <SectionLabel num="04">Keyboard</SectionLabel>
+
+          <div>
+            <h2 class="t-h2 measure-tight" data-reveal>{home.keyboardHeading}</h2>
+            {home.keyboardIntro && (
+              <p class="t-lede keyboard__intro measure" data-reveal style="--reveal-delay:70ms">
+                {home.keyboardIntro}
+              </p>
+            )}
+
+            <div class="keyboard__list">
+              <ShortcutList shortcuts={home.shortcuts} />
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- ================= 05 Privacy ================= -->
+  {
+    home?.privacyHeading && (
+      <section class="section section--ruled">
+        <div class="shell spine">
+          <SectionLabel num="05">Credentials</SectionLabel>
+
+          <div class="privacy">
+            <h2 class="t-h2 measure-tight" data-reveal>{home.privacyHeading}</h2>
+            <div data-reveal style="--reveal-delay:80ms">
+              <PortableText value={home.privacyBody} />
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- ================= 06 Requirements ================= -->
+  {
+    home?.requirements?.length > 0 && (
+      <section class="section section--ruled">
+        <div class="shell spine">
+          <SectionLabel num="06">Requirements</SectionLabel>
+
+          <div>
+            <h2 class="t-h2 measure-tight" data-reveal>{home.requirementsHeading}</h2>
+            {home.requirementsIntro && (
+              <p class="t-lede measure requirements__intro" data-reveal style="--reveal-delay:70ms">
+                {home.requirementsIntro}
+              </p>
+            )}
+
+            <dl class="requirements">
+              {home.requirements.map((r: any, i: number) => (
+                <div class="requirement" data-reveal style={`--reveal-delay:${i * 60}ms`}>
+                  <dt class="requirement__term">{r.title}</dt>
+                  <dd class="requirement__desc t-small">{r.body}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- ================= CTA ================= -->
+  <section class="section section--ruled cta">
+    <div class="shell cta__inner">
+      <div>
+        <h2 class="t-h2 measure-tight" data-reveal>
+          {home?.ctaHeading ?? 'Want to know when it runs?'}
+        </h2>
+        {
+          home?.ctaBody && (
+            <p class="t-lede measure cta__body" data-reveal style="--reveal-delay:70ms">
+              {home.ctaBody}
+            </p>
+          )
+        }
+      </div>
+
+      <div data-reveal style="--reveal-delay:140ms">
+        <SubscribeForm label={home?.ctaSubscribeLabel ?? 'Keep me posted'} />
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* ---- Hero ---- */
+  .hero {
+    padding-top: clamp(3.5rem, 9vw, 8rem);
+    padding-bottom: clamp(3rem, 7vw, 6rem);
+    position: relative;
+  }
+
+  .hero__eyebrow {
+    margin-bottom: clamp(1.25rem, 3vw, 2rem);
+  }
+
+  .hero__headline {
+    white-space: pre-line;
+    max-width: 15ch;
+  }
+
+  /* The asymmetry: the pitch sits off-centre, under the headline's right half. */
+  .hero__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    margin-top: clamp(1.75rem, 4vw, 3rem);
+  }
+
+  @media (min-width: 62rem) {
+    .hero__row {
+      grid-template-columns: 4fr 6fr;
+    }
+
+    .hero__pitch {
+      grid-column: 2;
+    }
+  }
+
+  .hero__pitch .t-lede {
+    max-width: 46ch;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+  }
+
+  .hero__status {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+    margin-top: 1.5rem;
+    color: var(--ink-3);
+    max-width: 46ch;
+  }
+
+  .hero__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #61c455;
+    flex: none;
+    transform: translateY(-1px);
+  }
+
+  .hero__frame {
+    margin-top: clamp(3rem, 8vw, 6rem);
+  }
+
+  /* ---- 01 Problem ---- */
+  .problem__body {
+    margin-top: 1.75rem;
+  }
+
+  .problem__shot {
+    margin-top: clamp(2.5rem, 6vw, 4rem);
+    max-width: 48rem;
+  }
+
+  /* ---- 02 Qualities ---- */
+  .qualities {
+    list-style: none;
+    margin: clamp(2.5rem, 6vw, 4rem) 0 0;
+    padding: 0;
+    display: grid;
+    gap: 1px;
+    background: var(--rule);
+    border-block: 1px solid var(--rule);
+  }
+
+  @media (min-width: 48rem) {
+    .qualities {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .quality {
+    background: var(--paper);
+    padding: clamp(1.5rem, 3vw, 2.25rem) clamp(1.25rem, 3vw, 2.25rem);
+    transition: background-color 0.3s var(--ease);
+  }
+
+  .quality:hover {
+    background: var(--paper-2);
+  }
+
+  .quality__num {
+    color: var(--accent);
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  .quality__body {
+    margin-top: 0.6rem;
+    max-width: 42ch;
+    font-size: 1rem;
+  }
+
+  /* ---- 03 Features ---- */
+  .features__intro {
+    margin-top: 1.5rem;
+  }
+
+  .features {
+    list-style: none;
+    margin: clamp(2.5rem, 6vw, 3.5rem) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: clamp(1.75rem, 4vw, 2.75rem) clamp(1.75rem, 4vw, 3rem);
+  }
+
+  .feature__icon {
+    display: grid;
+    place-items: center;
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: 10px;
+    background: var(--accent-wash);
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+
+  .feature__title {
+    font-size: 1rem;
+    font-weight: 620;
+    letter-spacing: -0.015em;
+  }
+
+  .feature__body {
+    margin-top: 0.4rem;
+    max-width: 34ch;
+    color: var(--ink-2);
+  }
+
+  /* A horizontally scrolling row that deliberately breaks the grid. */
+  .gallery {
+    margin-top: clamp(3rem, 7vw, 5rem);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-block: 0.5rem;
+  }
+
+  .gallery::-webkit-scrollbar {
+    display: none;
+  }
+
+  .gallery__track {
+    display: flex;
+    gap: clamp(1rem, 2.5vw, 2rem);
+    padding-inline: var(--gutter);
+    width: max-content;
+  }
+
+  .gallery__item {
+    width: min(38rem, 84vw);
+    flex: none;
+    scroll-snap-align: center;
+  }
+
+  /* ---- 04 Keyboard ---- */
+  .keyboard__intro {
+    margin-top: 1.5rem;
+  }
+
+  .keyboard__list {
+    margin-top: clamp(2rem, 5vw, 3rem);
+  }
+
+  /* ---- 05 Privacy ---- */
+  .privacy :global(.pt) {
+    margin-top: 1.75rem;
+  }
+
+  /* ---- 06 Requirements ---- */
+  .requirements__intro {
+    margin-top: 1.5rem;
+  }
+
+  .requirements {
+    margin: clamp(2.5rem, 5vw, 3.5rem) 0 0;
+    display: grid;
+    gap: 0;
+  }
+
+  .requirement {
+    display: grid;
+    gap: 0.35rem 2rem;
+    padding-block: 1.15rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .requirement:last-child {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  @media (min-width: 48rem) {
+    .requirement {
+      grid-template-columns: 16rem minmax(0, 1fr);
+      align-items: baseline;
+    }
+  }
+
+  .requirement__term {
+    font-weight: 620;
+    font-size: 1rem;
+    letter-spacing: -0.015em;
+  }
+
+  .requirement__desc {
+    margin: 0;
+    max-width: 52ch;
+  }
+
+  /* ---- CTA ---- */
+  .cta__inner {
+    display: grid;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+  }
+
+  @media (min-width: 62rem) {
+    .cta__inner {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .cta__body {
+    margin-top: 1.25rem;
+  }
+</style>

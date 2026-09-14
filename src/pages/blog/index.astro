@@ -1,0 +1,185 @@
+---
+import PageHeader from '../../components/PageHeader.astro'
+import SanityImage from '../../components/SanityImage.astro'
+import Layout from '../../layouts/Layout.astro'
+import {loadQuery} from '../../sanity/lib/load-query'
+import {postsQuery} from '../../sanity/lib/queries'
+
+const {data: posts} = await loadQuery<any[]>({query: postsQuery})
+
+const formatDate = (value: string) =>
+  new Date(value).toLocaleDateString('en-GB', {day: 'numeric', month: 'long', year: 'numeric'})
+
+const [lead, ...rest] = posts ?? []
+---
+
+<Layout title="Blog" description="Notes on building kvidr — decisions, trade-offs and releases.">
+  <PageHeader
+    eyebrow="Writing"
+    headline={'Notes from\nthe build.'}
+    lede="Decisions, trade-offs, and the occasional thing that turned out to be wrong."
+  />
+
+  <section class="section">
+    <div class="shell">
+      {
+        lead ? (
+          <>
+            <a class="lead" href={`/blog/${lead.slug}`} data-reveal>
+              {lead.coverImage?.asset && (
+                <div class="lead__media">
+                  <SanityImage
+                    image={lead.coverImage}
+                    alt={lead.coverImage.alt ?? ''}
+                    sizes="(max-width: 62rem) 92vw, 40rem"
+                    loading="eager"
+                    class="lead__img"
+                  />
+                </div>
+              )}
+
+              <div class="lead__text">
+                <p class="t-label">
+                  Latest
+                  <span class="lead__dot">·</span>
+                  <time datetime={lead.publishedAt}>{formatDate(lead.publishedAt)}</time>
+                </p>
+                <h2 class="t-h2 lead__title">{lead.title}</h2>
+                <p class="t-prose lead__excerpt">{lead.excerpt}</p>
+                <span class="link-arrow">
+                  Read it
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12h13M12 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </div>
+            </a>
+
+            {rest.length > 0 && (
+              <ol class="posts" role="list">
+                {rest.map((post: any) => (
+                  <li data-reveal>
+                    <a class="post" href={`/blog/${post.slug}`}>
+                      <time class="t-label post__date" datetime={post.publishedAt}>
+                        {formatDate(post.publishedAt)}
+                      </time>
+                      <h3 class="t-h3 post__title">{post.title}</h3>
+                      <p class="t-small post__excerpt">{post.excerpt}</p>
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </>
+        ) : (
+          <p class="t-lede">Nothing written yet. Soon.</p>
+        )
+      }
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .section {
+    padding-top: 0;
+  }
+
+  .lead {
+    display: grid;
+    gap: clamp(1.75rem, 4vw, 3.5rem);
+    align-items: center;
+    padding-bottom: clamp(3rem, 7vw, 5rem);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  @media (min-width: 62rem) {
+    .lead {
+      grid-template-columns: 1.1fr 1fr;
+    }
+  }
+
+  .lead__media {
+    border-radius: var(--radius-m);
+    overflow: hidden;
+    border: 1px solid var(--rule);
+    box-shadow: var(--glass-shadow);
+  }
+
+  .lead__media :global(.lead__img) {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    transition: transform 0.7s var(--ease-out);
+  }
+
+  .lead:hover .lead__media :global(.lead__img) {
+    transform: scale(1.03);
+  }
+
+  .lead__dot {
+    margin-inline: 0.45em;
+    color: var(--ink-3);
+  }
+
+  .lead__title {
+    margin-top: 1rem;
+    max-width: 20ch;
+    transition: color 0.25s var(--ease);
+  }
+
+  .lead:hover .lead__title {
+    color: var(--accent);
+  }
+
+  .lead__excerpt {
+    margin-top: 1rem;
+    max-width: 46ch;
+  }
+
+  .lead .link-arrow {
+    margin-top: 1.5rem;
+  }
+
+  .posts {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .post {
+    display: grid;
+    gap: 0.5rem clamp(2rem, 6vw, 5rem);
+    padding-block: clamp(1.75rem, 4vw, 2.5rem);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  @media (min-width: 62rem) {
+    .post {
+      grid-template-columns: 10.5rem minmax(0, 1fr);
+      align-items: baseline;
+    }
+  }
+
+  .post__date {
+    color: var(--ink-3);
+  }
+
+  .post__title {
+    max-width: 30ch;
+    transition: color 0.25s var(--ease);
+  }
+
+  .post:hover .post__title {
+    color: var(--accent);
+  }
+
+  .post__excerpt {
+    max-width: 58ch;
+  }
+
+  @media (min-width: 62rem) {
+    .post__excerpt {
+      grid-column: 2;
+    }
+  }
+</style>

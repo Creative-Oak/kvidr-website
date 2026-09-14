@@ -1,0 +1,116 @@
+---
+import Wordmark from './Wordmark.astro'
+import {clean} from '../sanity/lib/stega'
+
+interface Props {
+  tagline?: string
+  footerLinks?: {label: string; href: string}[]
+  footerNote?: string
+  githubUrl?: string
+  contactEmail?: string
+}
+
+const {
+  tagline,
+  footerLinks: rawLinks = [],
+  footerNote,
+  githubUrl: rawGithub,
+  contactEmail: rawEmail,
+} = Astro.props
+
+const footerLinks = rawLinks.map((l) => ({...l, href: clean(l.href)}))
+const githubUrl = clean(rawGithub)
+const contactEmail = clean(rawEmail)
+const year = new Date().getFullYear()
+---
+
+<footer class="footer">
+  <div class="shell footer__inner">
+    <div class="footer__brand">
+      <Wordmark size={22} />
+      {tagline && <p class="t-small footer__tagline">{tagline}</p>}
+    </div>
+
+    <nav class="footer__nav" aria-label="Footer">
+      {footerLinks.map((l) => <a class="footer__link" href={l.href}>{l.label}</a>)}
+      {
+        githubUrl && (
+          <a class="footer__link" href={githubUrl} target="_blank" rel="noopener noreferrer">
+            GitHub
+          </a>
+        )
+      }
+      {contactEmail && <a class="footer__link" href={`mailto:${contactEmail}`}>{contactEmail}</a>}
+    </nav>
+  </div>
+
+  <div class="shell footer__base">
+    <p class="t-small footer__note">{footerNote ?? `© ${year} kvidr.`}</p>
+    <p class="t-label footer__built">Built in Denmark</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--rule);
+    padding-block: clamp(3rem, 6vw, 5rem) 2rem;
+    margin-top: auto;
+  }
+
+  .footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.5rem;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .footer__tagline {
+    margin-top: 0.85rem;
+    max-width: 26ch;
+    color: var(--ink-3);
+  }
+
+  .footer__nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, auto));
+    gap: 0.55rem 3rem;
+  }
+
+  .footer__link {
+    font-size: 0.9375rem;
+    color: var(--ink-2);
+    transition: color 0.2s var(--ease);
+  }
+
+  .footer__link:hover {
+    color: var(--accent);
+  }
+
+  .footer__base {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: clamp(3rem, 7vw, 5.5rem);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .footer__note {
+    color: var(--ink-3);
+    max-width: 62ch;
+    white-space: pre-line;
+  }
+
+  .footer__built {
+    color: var(--ink-3);
+  }
+
+  @media (max-width: 34rem) {
+    .footer__nav {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

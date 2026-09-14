@@ -1,0 +1,44 @@
+---
+interface Props {
+  eyebrow?: string
+  headline: string
+  lede?: string
+}
+
+const {eyebrow, headline, lede} = Astro.props
+---
+
+<header class="pagehead">
+  <div class="shell">
+    {eyebrow && <p class="t-label pagehead__eyebrow" data-reveal>{eyebrow}</p>}
+    <h1 class="t-h2 pagehead__title" data-reveal style="--reveal-delay:60ms">{headline}</h1>
+    {
+      lede && (
+        <p class="t-lede pagehead__lede measure" data-reveal style="--reveal-delay:120ms">
+          {lede}
+        </p>
+      )
+    }
+    <slot />
+  </div>
+</header>
+
+<style>
+  .pagehead {
+    padding-top: clamp(3.5rem, 9vw, 7rem);
+    padding-bottom: clamp(2.5rem, 6vw, 4.5rem);
+  }
+
+  .pagehead__eyebrow {
+    margin-bottom: clamp(1rem, 2.5vw, 1.75rem);
+  }
+
+  .pagehead__title {
+    max-width: 18ch;
+    white-space: pre-line;
+  }
+
+  .pagehead__lede {
+    margin-top: 1.75rem;
+  }
+</style>

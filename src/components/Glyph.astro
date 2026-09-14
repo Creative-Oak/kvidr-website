@@ -1,0 +1,45 @@
+---
+import {clean} from '../sanity/lib/stega'
+
+/** Small line glyphs, drawn in the spirit of SF Symbols. */
+interface Props {
+  name?: string
+  size?: number
+  class?: string
+}
+
+const {name = 'bubble', size = 20, class: className = ''} = Astro.props
+
+// The name is a lookup key, not display text, so stega must come off first.
+const symbol = clean(name) || 'bubble'
+
+const paths: Record<string, string> = {
+  bolt: 'M13 2 4.5 13H11l-1 9 8.5-11H12l1-9Z',
+  lock: 'M6 10V7a6 6 0 0 1 12 0v3M4.5 10h15v11h-15V10Z',
+  keyboard: 'M3 6.5h18v11H3v-11ZM7 10h.01M11 10h.01M15 10h.01M17 10h.01M7 14h10',
+  bubble: 'M21 12a8 8 0 0 1-8 8H4l2-3.2A8 8 0 1 1 21 12Z',
+  paperclip: 'M20 11.5 12 19.5a5 5 0 0 1-7-7l8.5-8.5a3.4 3.4 0 0 1 4.8 4.8l-8.4 8.4a1.8 1.8 0 0 1-2.5-2.5l7.8-7.8',
+  bell: 'M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6ZM10 20a2 2 0 0 0 4 0',
+  search: 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14ZM16.2 16.2 21 21',
+  sidebar: 'M3 5.5h18v13H3v-13ZM9.5 5.5v13',
+  sync: 'M20 12a8 8 0 0 1-13.7 5.6M4 12a8 8 0 0 1 13.7-5.6M4 6v4h4M20 18v-4h-4',
+}
+
+const d = paths[symbol] ?? paths.bubble
+---
+
+<svg
+  class={className}
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.6"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+>
+  <path d={d} />
+</svg>

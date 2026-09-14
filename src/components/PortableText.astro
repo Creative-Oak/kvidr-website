@@ -1,0 +1,150 @@
+---
+import {toHTML, type PortableTextHtmlComponents} from '@portabletext/to-html'
+import {urlForImage} from '../sanity/lib/image'
+
+interface Props {
+  value: any
+  class?: string
+}
+
+const {value, class: className = ''} = Astro.props
+
+const escape = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
+const components: Partial<PortableTextHtmlComponents> = {
+  types: {
+    captionedImage: ({value}) => {
+      if (!value?.asset) return ''
+      const src = urlForImage(value).width(1400).quality(82).url()
+      const caption = value.caption ? `<figcaption>${escape(value.caption)}</figcaption>` : ''
+      return `<figure class="pt-figure"><img src="${src}" alt="${escape(
+        value.alt ?? '',
+      )}" loading="lazy" decoding="async" />${caption}</figure>`
+    },
+    codeBlock: ({value}) =>
+      `<pre class="pt-code"><code>${escape(value?.code ?? '')}</code></pre>`,
+  },
+  marks: {
+    linkAnnotation: ({value, children}) => {
+      const href = value?.href ?? '#'
+      const external = /^https?:\/\//.test(href)
+      const rel = external ? ' target="_blank" rel="noopener noreferrer"' : ''
+      return `<a class="link" href="${escape(href)}"${rel}>${children}</a>`
+    },
+    code: ({children}) => `<code class="pt-inline-code">${children}</code>`,
+  },
+}
+
+const html = value ? toHTML(value, {components}) : ''
+---
+
+<div class={`pt ${className}`} set:html={html} />
+
+<style is:global>
+  .pt {
+    font-family: var(--font-prose);
+    font-size: 1.0625rem;
+    line-height: 1.68;
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+
+  .pt > * + * {
+    margin-top: 1.15em;
+  }
+
+  .pt p {
+    max-width: 64ch;
+  }
+
+  .pt h2 {
+    font-family: var(--font-display);
+    font-size: var(--t-h3);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.024em;
+    color: var(--ink);
+    margin-top: 2.4em;
+    max-width: 30ch;
+  }
+
+  .pt h3 {
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 650;
+    letter-spacing: -0.014em;
+    color: var(--ink);
+    margin-top: 2em;
+  }
+
+  .pt blockquote {
+    font-size: var(--t-lede);
+    font-weight: 380;
+    line-height: 1.5;
+    color: var(--ink);
+    border-left: 2px solid var(--accent);
+    padding-left: 1.15em;
+    max-width: 48ch;
+  }
+
+  .pt ul,
+  .pt ol {
+    padding-left: 1.15em;
+    max-width: 62ch;
+  }
+
+  .pt li + li {
+    margin-top: 0.4em;
+  }
+
+  .pt li::marker {
+    color: var(--ink-3);
+  }
+
+  .pt strong {
+    font-weight: 620;
+    color: var(--ink);
+  }
+
+  .pt-inline-code,
+  .pt-code code {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+  }
+
+  .pt-inline-code {
+    padding: 0.12em 0.38em;
+    border-radius: 5px;
+    background: var(--accent-wash);
+    color: var(--accent);
+  }
+
+  .pt-code {
+    padding: 1.1rem 1.25rem;
+    border-radius: var(--radius-m);
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    overflow-x: auto;
+    font-size: 0.8125rem;
+    line-height: 1.62;
+    color: var(--ink);
+  }
+
+  .pt-figure {
+    margin: 2em 0;
+  }
+
+  .pt-figure img {
+    width: 100%;
+    border-radius: var(--radius-m);
+    border: 1px solid var(--rule);
+  }
+
+  .pt-figure figcaption {
+    margin-top: 0.7rem;
+    font-family: var(--font-display);
+    font-size: var(--t-small);
+    color: var(--ink-3);
+  }
+</style>
