@@ -1,6 +1,6 @@
 import type {APIRoute} from 'astro'
 import {Resend} from 'resend'
-import {clientIp, rateLimit} from '../../lib/rate-limit'
+import {clientIp, rateLimit, recordHit, withinLimit} from '../../lib/rate-limit'
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
@@ -21,8 +21,14 @@ export const POST: APIRoute = async ({request}) => {
     return json({message: 'The mailing list is not connected yet.'}, 503)
   }
 
-  if (!rateLimit(`subscribe:${clientIp(request)}`, 5)) {
+  const ip = clientIp(request)
+
+  // A wide budget for attempts (typos are cheap), a narrow one for signups.
+  if (!rateLimit(`subscribe:attempts:${ip}`, 30)) {
     return json({message: 'Too many attempts. Try again later.'}, 429)
+  }
+  if (!withinLimit(`subscribe:sent:${ip}`, 5)) {
+    return json({message: 'Too many signups from here. Try again later.'}, 429)
   }
 
   let email = ''
@@ -59,6 +65,7 @@ export const POST: APIRoute = async ({request}) => {
       return json({message: 'The mailing list is not connected yet.'}, 503)
     }
 
+    recordHit(`subscribe:sent:${ip}`)
     return json({message: 'You are on the list. Thank you.'})
   } catch (error) {
     console.error('[subscribe]', error)

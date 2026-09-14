@@ -1,6 +1,6 @@
 import type {APIRoute} from 'astro'
 import {Resend} from 'resend'
-import {clientIp, rateLimit} from '../../lib/rate-limit'
+import {clientIp, rateLimit, recordHit, withinLimit} from '../../lib/rate-limit'
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
@@ -27,7 +27,13 @@ export const POST: APIRoute = async ({request}) => {
     return json({message: 'The contact form is not connected yet.'}, 503)
   }
 
-  if (!rateLimit(`contact:${clientIp(request)}`, 4)) {
+  const ip = clientIp(request)
+
+  // A wide budget for attempts (typos are cheap), a narrow one for sent mail.
+  if (!rateLimit(`contact:attempts:${ip}`, 30)) {
+    return json({message: 'Too many attempts. Try again later.'}, 429)
+  }
+  if (!withinLimit(`contact:sent:${ip}`, 4)) {
     return json({message: 'Too many messages. Try again later.'}, 429)
   }
 
@@ -67,6 +73,7 @@ export const POST: APIRoute = async ({request}) => {
     })
     if (error) throw new Error(error.message)
 
+    recordHit(`contact:sent:${ip}`)
     return json({message: 'Thank you — your message is on its way.'})
   } catch (error) {
     console.error('[contact]', error)
