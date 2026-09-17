@@ -1,0 +1,220 @@
+---
+/**
+ * A stand-in for an iPhone screenshot of kvidr: the conversation list, drawn
+ * the way iOS draws one — large title, search field, inset rows. Replaced by a
+ * real screenshot as soon as one is uploaded.
+ */
+const rows = [
+  {name: 'Design', snippet: 'Anna: the inspector is the right call', time: '09:41', unread: true, tone: 0},
+  {name: 'Jonas Bech', snippet: 'Sent you the capability dump', time: '09:28', unread: true, tone: 1},
+  {name: 'Release 1.0', snippet: 'You: shipping notes are in the repo', time: 'Tue', tone: 2},
+  {name: 'Infrastructure', snippet: 'Mikkel: long poll is stable now', time: 'Tue', tone: 3},
+  {name: 'Sofie Lund', snippet: 'Launch build is signed and notarised ✨', time: 'Mon', tone: 4},
+  {name: 'Support', snippet: 'Thanks — that fixed it on our server', time: 'Sun', tone: 1},
+]
+---
+
+<div class="pm" aria-hidden="true">
+  <div class="pm__status">
+    <span class="pm__clock">9:41</span>
+    <span class="pm__icons">
+      <svg viewBox="0 0 18 12" width="17" height="11"><rect x="0" y="8" width="3" height="4" rx="1" /><rect x="5" y="5.5" width="3" height="6.5" rx="1" /><rect x="10" y="3" width="3" height="9" rx="1" /><rect x="15" y="0" width="3" height="12" rx="1" /></svg>
+      <svg viewBox="0 0 26 12" width="24" height="11"><rect x="0.5" y="0.5" width="22" height="11" rx="3.5" fill="none" stroke="currentColor" opacity="0.4" /><rect x="2" y="2" width="16" height="8" rx="2" /><rect x="23.5" y="4" width="2" height="4" rx="1" opacity="0.4" /></svg>
+    </span>
+  </div>
+
+  <div class="pm__nav">
+    <span class="pm__edit">Edit</span>
+    <svg class="pm__compose" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
+  </div>
+
+  <p class="pm__title">Chats</p>
+
+  <div class="pm__search">
+    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7" /><path d="M16.2 16.2 21 21" /></svg>
+    Search
+  </div>
+
+  <ul class="pm__list">
+    {
+      rows.map((r) => (
+        <li class="pm__row">
+          <span class="pm__dot" data-on={r.unread ? 'true' : undefined} />
+          <span class={`pm__avatar pm__avatar--${r.tone}`}>{r.name.slice(0, 1)}</span>
+          <span class="pm__text">
+            <span class="pm__top">
+              <span class="pm__name">{r.name}</span>
+              <span class="pm__time">{r.time}</span>
+            </span>
+            <span class="pm__snippet">{r.snippet}</span>
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<style>
+  .pm {
+    height: 100%;
+    background: var(--paper-raised);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', var(--font-display);
+    letter-spacing: -0.01em;
+    overflow: hidden;
+    /* Everything is sized off the phone's width, so the drawing scales as one. */
+    font-size: 3.9cqi;
+  }
+
+  .pm__status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4.2cqi 8cqi 0 9.5cqi;
+    height: 12cqi;
+    font-size: 1.12em;
+    font-weight: 600;
+  }
+
+  .pm__icons {
+    display: flex;
+    gap: 1.6cqi;
+    fill: currentColor;
+  }
+
+  .pm__icons svg {
+    width: auto;
+    height: 3.1cqi;
+  }
+
+  .pm__nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2.5cqi 5.5cqi 0;
+    color: #1670c4;
+  }
+
+  .pm__edit {
+    font-size: 1.1em;
+  }
+
+  .pm__compose {
+    width: 5.6cqi;
+    height: 5.6cqi;
+  }
+
+  .pm__title {
+    padding: 1.5cqi 5.5cqi 0;
+    font-size: 2.35em;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .pm__search {
+    display: flex;
+    align-items: center;
+    gap: 1.6cqi;
+    margin: 2.5cqi 4.5cqi 2cqi;
+    padding: 2.2cqi 2.6cqi;
+    border-radius: 2.8cqi;
+    background: var(--paper-2);
+    color: var(--ink-3);
+    font-size: 1.05em;
+  }
+
+  .pm__search svg {
+    width: 3.5cqi;
+    height: 3.5cqi;
+  }
+
+  .pm__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .pm__row {
+    display: flex;
+    align-items: center;
+    gap: 2.4cqi;
+    padding: 2.6cqi 4.5cqi 2.6cqi 1.8cqi;
+    position: relative;
+  }
+
+  /* iOS-style inset separator that starts where the text does. */
+  .pm__row + .pm__row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 21cqi;
+    right: 0;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  .pm__dot {
+    width: 2.4cqi;
+    height: 2.4cqi;
+    border-radius: 50%;
+    flex: none;
+  }
+
+  .pm__dot[data-on] {
+    background: #2292ec;
+  }
+
+  .pm__avatar {
+    display: grid;
+    place-items: center;
+    width: 11.5cqi;
+    height: 11.5cqi;
+    flex: none;
+    border-radius: 50%;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1.15em;
+  }
+
+  .pm__avatar--0 { background: linear-gradient(180deg, #5ac7fc, #2292ec); }
+  .pm__avatar--1 { background: linear-gradient(180deg, #4ad2d0, #1da7b8); }
+  .pm__avatar--2 { background: linear-gradient(180deg, #4f8fc7, #2d6aa3); }
+  .pm__avatar--3 { background: linear-gradient(180deg, #5fb6c4, #2f8795); }
+  .pm__avatar--4 { background: linear-gradient(180deg, #7aa9d6, #4a7fb2); }
+
+  .pm__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .pm__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 2cqi;
+  }
+
+  .pm__name {
+    font-weight: 600;
+    font-size: 1.08em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .pm__time {
+    color: var(--ink-3);
+    font-size: 0.92em;
+    flex: none;
+  }
+
+  .pm__snippet {
+    color: var(--ink-3);
+    font-size: 0.98em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+</style>

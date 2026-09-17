@@ -1,0 +1,133 @@
+---
+import PhoneMock from './PhoneMock.astro'
+import SanityImage from './SanityImage.astro'
+
+interface Props {
+  image?: any
+  /** Shown under the frame while there is no real screenshot. */
+  stubLabel?: string
+  class?: string
+}
+
+const {
+  image,
+  stubLabel = 'Illustration — the iPhone app is in development',
+  class: className = '',
+} = Astro.props
+
+const hasImage = Boolean(image?.asset)
+---
+
+<figure class={`phone ${className}`}>
+  <div class="phone__glow" aria-hidden="true"></div>
+
+  <div class="phone__device">
+    <div class="phone__screen">
+      {
+        hasImage ? (
+          <SanityImage
+            image={image}
+            alt={image?.alt ?? 'kvidr on iPhone'}
+            sizes="(max-width: 40rem) 15rem, 19rem"
+            widths={[480, 720, 960, 1290]}
+            class="phone__img"
+          />
+        ) : (
+          <PhoneMock />
+        )
+      }
+      <span class="phone__island" aria-hidden="true"></span>
+    </div>
+  </div>
+
+  {image?.caption && <figcaption class="t-small phone__caption">{image.caption}</figcaption>}
+  {
+    !hasImage && (
+      <p class="t-label phone__stub">
+        <span class="phone__stubdot" /> {stubLabel}
+      </p>
+    )
+  }
+</figure>
+
+<style>
+  .phone {
+    position: relative;
+    margin: 0;
+    width: min(19rem, 72vw);
+  }
+
+  /* Same idea as the Mac window: the logo's two bubbles, behind the device. */
+  .phone__glow {
+    position: absolute;
+    inset: 6% -30% 10%;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(
+        55% 45% at 35% 30%,
+        color-mix(in srgb, var(--sky-light) 45%, transparent) 0%,
+        transparent 70%
+      ),
+      radial-gradient(
+        50% 42% at 70% 72%,
+        color-mix(in srgb, var(--teal-light) 36%, transparent) 0%,
+        transparent 72%
+      );
+    filter: blur(48px);
+  }
+
+  .phone__device {
+    position: relative;
+    z-index: 1;
+    padding: 3.2%;
+    border-radius: 15.5% / 7.2%;
+    background: linear-gradient(160deg, #3a4452, #10151d 40%, #1d2531);
+    box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.14), var(--window-shadow);
+  }
+
+  .phone__screen {
+    position: relative;
+    aspect-ratio: 1179 / 2556;
+    border-radius: 12.8% / 5.9%;
+    overflow: hidden;
+    background: var(--paper-raised);
+    container-type: inline-size;
+  }
+
+  .phone__screen > :global(.phone__img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .phone__island {
+    position: absolute;
+    top: 2.6%;
+    left: 50%;
+    width: 31%;
+    height: 3.6%;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: #05070a;
+  }
+
+  .phone__caption {
+    margin-top: 1rem;
+  }
+
+  .phone__stub {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+    color: var(--ink-3);
+  }
+
+  .phone__stubdot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--teal);
+    flex: none;
+  }
+</style>

@@ -19,6 +19,9 @@ export const siteSettingsQuery = groq`
     tagline,
     githubUrl,
     downloadUrl,
+    iosAppStoreUrl,
+    priceAmount,
+    priceCurrency,
     contactEmail,
     navLinks[]{label, href},
     footerLinks[]{label, href},
@@ -32,6 +35,7 @@ export const homePageQuery = groq`
     eyebrow,
     headline,
     lede,
+    heroPriceNote,
     statusNote,
     heroScreenshot{${imageFields}},
 
@@ -51,8 +55,20 @@ export const homePageQuery = groq`
     keyboardIntro,
     shortcuts[]{_key, keys, action},
 
+    iosHeading,
+    iosStatus,
+    iosBody[]{${richTextFields}},
+    iosScreenshot{${imageFields}},
+
     privacyHeading,
     privacyBody[]{${richTextFields}},
+
+    pricingHeading,
+    pricingIntro,
+    buyTitle,
+    buyBody,
+    buildTitle,
+    buildBody,
 
     requirementsHeading,
     requirementsIntro,

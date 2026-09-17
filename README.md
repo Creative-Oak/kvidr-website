@@ -1,7 +1,8 @@
 # kvidr.app
 
-The website for [kvidr](https://github.com/Magniswerfer/native-nextcloud-chat) — a native
-macOS client for Nextcloud Talk.
+The website for [kvidr](https://github.com/Magniswerfer/native-nextcloud-chat) — native
+Nextcloud Talk for the Mac, with an iPhone app in development. The app is MIT licensed; the
+signed build costs a small price, and anyone can build it themselves for free.
 
 Astro in SSR mode, Sanity for content, with Presentation live preview. Deployed as a
 container on Coolify.
@@ -52,11 +53,22 @@ The hero, the problem section and the feature gallery all take a screenshot. Unt
 uploaded, the hero draws a hand-built stand-in of the app and labels it as an illustration.
 Upload real screenshots in the Studio and the stand-in disappears on its own.
 
-### The download button
+### Price, purchase and the iPhone app
 
-`Site settings → Download URL` is intentionally empty. While it is empty, the hero's primary
-button reads "Read the source" and points at GitHub. Fill it in and the button becomes
-"Download for macOS". Nothing else needs to change.
+The price lives once, in **Site settings → Price of the signed build** (and currency). Copy
+anywhere on the home page can write `{price}` and it is inserted, formatted — so changing the
+price is one edit, not a hunt through headings.
+
+**Site settings → Mac purchase URL** is intentionally empty. While it is empty, the hero's
+primary button reads "Read the source", and the Price section says the signed build is on its
+way. Fill it in and both become "Buy for Mac" with the price on the button.
+
+**Site settings → iPhone App Store URL** works the same way: while empty, the iPhone section
+shows its status ("In development"); once set, the status disappears and a "View on the App
+Store" button appears. Upload a portrait screenshot to replace the drawn iPhone.
+
+The home page also emits `SoftwareApplication` structured data with the price and the MIT
+licence, so search results can show both.
 
 ## Deploying to Coolify
 
@@ -130,7 +142,8 @@ npx sanity cors add https://example.com --credentials
 | `npm run check` | Astro + TypeScript diagnostics. |
 | `npm run verify:runtime` | Checks the built server only imports what the image ships. |
 | `node scripts/brand.mjs` | Regenerates every web brand asset from `brand/source` — mark, favicons, app icons, social card. |
-| `SANITY_WRITE_TOKEN=… node scripts/seed.mjs` | Re-seeds the dataset. **Overwrites Studio edits** — for bootstrapping only. |
+| `SANITY_WRITE_TOKEN=… node scripts/seed.mjs` | Seeds an empty dataset from `scripts/content.mjs`. **Overwrites Studio edits** — for bootstrapping only. |
+| `SANITY_WRITE_TOKEN=… node scripts/migrations/<name>.mjs --dry-run` | Patches specific fields in an existing dataset. Refuses to touch edited documents or drafts. |
 
 ## How it is put together
 

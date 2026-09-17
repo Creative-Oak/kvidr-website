@@ -10,7 +10,9 @@ export const homePage = defineType({
     {name: 'qualities', title: 'How it feels'},
     {name: 'features', title: 'Features'},
     {name: 'keyboard', title: 'Keyboard'},
+    {name: 'ios', title: 'iPhone'},
     {name: 'privacy', title: 'Privacy'},
+    {name: 'pricing', title: 'Price'},
     {name: 'requirements', title: 'Requirements'},
     {name: 'cta', title: 'Call to action'},
     {name: 'seo', title: 'SEO'},
@@ -44,6 +46,13 @@ export const homePage = defineType({
       type: 'captionedImage',
       group: 'hero',
       description: 'Until one exists, the site draws a placeholder window in its place.',
+    }),
+    defineField({
+      name: 'heroPriceNote',
+      title: 'Price note',
+      type: 'string',
+      group: 'hero',
+      description: 'One line under the buttons. Write {price} to insert the price from Site settings.',
     }),
     defineField({
       name: 'statusNote',
@@ -102,9 +111,49 @@ export const homePage = defineType({
       of: [defineArrayMember({type: 'shortcutItem'})],
     }),
 
+    // -- iPhone
+    defineField({name: 'iosHeading', title: 'Heading', type: 'text', rows: 2, group: 'ios'}),
+    defineField({
+      name: 'iosStatus',
+      title: 'Status',
+      type: 'string',
+      group: 'ios',
+      description: 'A short label beside the heading, e.g. "In development". Hidden once the App Store URL is set.',
+    }),
+    defineField({name: 'iosBody', title: 'Body', type: 'richText', group: 'ios'}),
+    defineField({
+      name: 'iosScreenshot',
+      title: 'Screenshot',
+      type: 'captionedImage',
+      group: 'ios',
+      description: 'A portrait iPhone screenshot. Until one exists, the site draws a stand-in.',
+    }),
+
     // -- Privacy
     defineField({name: 'privacyHeading', title: 'Heading', type: 'text', rows: 2, group: 'privacy'}),
     defineField({name: 'privacyBody', title: 'Body', type: 'richText', group: 'privacy'}),
+
+    // -- Pricing
+    defineField({
+      name: 'pricingHeading',
+      title: 'Heading',
+      type: 'text',
+      rows: 2,
+      group: 'pricing',
+      description: 'Write {price} to insert the price.',
+    }),
+    defineField({name: 'pricingIntro', title: 'Intro', type: 'text', rows: 3, group: 'pricing'}),
+    defineField({name: 'buyTitle', title: 'Buy — title', type: 'string', group: 'pricing'}),
+    defineField({
+      name: 'buyBody',
+      title: 'Buy — body',
+      type: 'text',
+      rows: 3,
+      group: 'pricing',
+      description: 'Write {price} to insert the price.',
+    }),
+    defineField({name: 'buildTitle', title: 'Build — title', type: 'string', group: 'pricing'}),
+    defineField({name: 'buildBody', title: 'Build — body', type: 'text', rows: 3, group: 'pricing'}),
 
     // -- Requirements
     defineField({

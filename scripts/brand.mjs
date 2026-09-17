@@ -114,7 +114,7 @@ const card = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" h
   <text x="80" y="556" font-family="${DISPLAY}" font-weight="600" font-size="25"
         letter-spacing="-0.4" fill="#1670c4">kvidr.app</text>
   <text x="${W - 80}" y="556" text-anchor="end" font-family="${DISPLAY}" font-weight="400"
-        font-size="25" letter-spacing="-0.4" fill="${INK_2}">A native macOS client for Nextcloud Talk</text>
+        font-size="25" letter-spacing="-0.4" fill="${INK_2}">Open source · Mac first, iPhone next</text>
 </svg>`)
 
 const cardIcon = await sharp(root(`${EXPORTS}-Default-1024@1x.png`)).resize(300, 300).png().toBuffer()
