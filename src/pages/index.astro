@@ -344,6 +344,26 @@ const structuredDataJson = JSON.stringify(structuredData).replace(/</g, '\\u003c
   </section>
 
   <script type="application/ld+json" is:inline set:html={structuredDataJson} />
+
+  <script>
+    // "Get launch news" means "let me type my email": land in the field, not
+    // just near it. The browser's own hash navigation would move focus back to
+    // the page, so the link scrolls and focuses itself.
+    const notify = () => document.getElementById('notify')
+    const focusSignup = () =>
+      notify()?.querySelector<HTMLInputElement>('input[type="email"]')?.focus({preventScroll: true})
+
+    document.addEventListener('click', (event) => {
+      if (!(event.target as Element).closest?.('a[href="#notify"]') || !notify()) return
+      event.preventDefault()
+      notify()!.scrollIntoView()
+      history.replaceState(null, '', '#notify')
+      focusSignup()
+    })
+
+    // Arriving from elsewhere with #notify — including the /pricing redirect.
+    if (location.hash === '#notify') addEventListener('load', () => requestAnimationFrame(focusSignup))
+  </script>
 </Layout>
 
 <style>
