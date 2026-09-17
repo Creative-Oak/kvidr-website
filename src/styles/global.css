@@ -403,7 +403,7 @@ h4 {
 }
 
 /* ---------- Keycap -------------------------------------------------------
-   A real Mac keycap: glass, a specular top edge, a hairline bottom bevel.    */
+   A Mac keycap: glass, a specular top edge, a hairline bottom bevel.    */
 
 .kbd {
   display: inline-flex;

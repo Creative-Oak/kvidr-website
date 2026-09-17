@@ -105,16 +105,18 @@ const card = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" h
 
   <text x="80" y="118" font-family="${DISPLAY}" font-weight="700" font-size="52"
         letter-spacing="-2.4" fill="${INK}">kvidr</text>
-  <text x="80" y="318" font-family="${DISPLAY}" font-weight="700" font-size="80"
-        letter-spacing="-3.6" fill="${INK}">Nextcloud Talk,</text>
-  <text x="80" y="406" font-family="${DISPLAY}" font-weight="700" font-size="80"
-        letter-spacing="-3.6" fill="${INK}">as a real Mac app.</text>
+  <text x="80" y="268" font-family="${DISPLAY}" font-weight="700" font-size="76"
+        letter-spacing="-3.4" fill="${INK}">Nextcloud Talk,</text>
+  <text x="80" y="352" font-family="${DISPLAY}" font-weight="700" font-size="76"
+        letter-spacing="-3.4" fill="${INK}">native on Mac</text>
+  <text x="80" y="436" font-family="${DISPLAY}" font-weight="700" font-size="76"
+        letter-spacing="-3.4" fill="${INK}">and iPhone.</text>
 
   <rect x="80" y="508" width="${W - 160}" height="1" fill="${INK}" fill-opacity="0.12"/>
   <text x="80" y="556" font-family="${DISPLAY}" font-weight="600" font-size="25"
         letter-spacing="-0.4" fill="#1670c4">kvidr.app</text>
   <text x="${W - 80}" y="556" text-anchor="end" font-family="${DISPLAY}" font-weight="400"
-        font-size="25" letter-spacing="-0.4" fill="${INK_2}">Open source · Mac first, iPhone next</text>
+        font-size="25" letter-spacing="-0.4" fill="${INK_2}">Open source · MIT licensed</text>
 </svg>`)
 
 const cardIcon = await sharp(root(`${EXPORTS}-Default-1024@1x.png`)).resize(300, 300).png().toBuffer()

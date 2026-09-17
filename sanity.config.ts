@@ -24,6 +24,7 @@ const structure: StructureResolver = (S) =>
     .title('kvidr')
     .items([
       singleton(S, 'homePage', 'Home page'),
+      singleton(S, 'pricingPage', 'Pricing page'),
       singleton(S, 'aboutPage', 'About page'),
       singleton(S, 'contactPage', 'Contact page'),
       S.divider(),
@@ -61,6 +62,9 @@ export default defineConfig({
           homePage: defineLocations({
             message: 'This document is used on the front page.',
             locations: [{title: 'Home', href: '/'}],
+          }),
+          pricingPage: defineLocations({
+            locations: [{title: 'Pricing', href: '/pricing'}],
           }),
           aboutPage: defineLocations({
             locations: [{title: 'About', href: '/about'}],

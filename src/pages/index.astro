@@ -144,8 +144,19 @@ const structuredDataJson = JSON.stringify(structuredData).replace(/</g, '\\u003c
         </div>
       </div>
 
-      <div class="hero__frame" data-reveal style="--reveal-delay:220ms">
-        <WindowFrame image={home?.heroScreenshot} hero sizes="(max-width: 80rem) 92vw, 74rem" />
+      <!-- Mac and iPhone together: the window, with the phone resting over its corner. -->
+      <div class="hero__devices">
+        <div class="hero__frame" data-reveal style="--reveal-delay:220ms">
+          <WindowFrame
+            image={home?.heroScreenshot}
+            hero
+            sizes="(max-width: 80rem) 92vw, 74rem"
+            stubLabel="Illustrations — real screenshots land with the first builds"
+          />
+        </div>
+        <div class="hero__phone" data-reveal style="--reveal-delay:380ms">
+          <PhoneFrame image={home?.iosScreenshot} glow={false} showStub={false} />
+        </div>
       </div>
     </div>
   </section>
@@ -374,6 +385,13 @@ const structuredDataJson = JSON.stringify(structuredData).replace(/</g, '\\u003c
                 <p class="t-label option__licence">MIT licence</p>
               </article>
             </div>
+
+            <a class="link-arrow pricing__more" href="/pricing" data-reveal>
+              Everything about pricing, including the iPhone app
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h13M12 5l7 7-7 7" />
+              </svg>
+            </a>
           </div>
         </div>
       </section>
@@ -507,8 +525,41 @@ const structuredDataJson = JSON.stringify(structuredData).replace(/</g, '\\u003c
     max-width: 46ch;
   }
 
-  .hero__frame {
+  .hero__devices {
+    position: relative;
     margin-top: clamp(3rem, 8vw, 6rem);
+  }
+
+  /* The phone overlaps the window's lower right corner on wide screens, and
+     steps out of the way on narrow ones, where the iPhone section shows it. */
+  .hero__phone {
+    display: none;
+  }
+
+  @media (min-width: 62rem) {
+    /* Room below for the phone to hang past the window, so the next section
+       does not collide with it. */
+    .hero__devices {
+      margin-bottom: 8rem;
+    }
+
+    .hero__frame {
+      padding-right: clamp(4rem, 9vw, 8rem);
+    }
+
+    /* Low enough to cover only the lower half of the window — the composer
+       and left-aligned messages — never the outgoing bubble. */
+    .hero__phone {
+      display: block;
+      position: absolute;
+      right: 0;
+      bottom: -8.5rem;
+      z-index: 2;
+    }
+
+    .hero__phone :global(.phone) {
+      width: clamp(10.5rem, 14vw, 13rem);
+    }
   }
 
   /* ---- 01 Problem ---- */
@@ -927,5 +978,9 @@ const structuredDataJson = JSON.stringify(structuredData).replace(/</g, '\\u003c
     .ios__pulse::after {
       animation: none;
     }
+  }
+
+  .pricing__more {
+    margin-top: 1.75rem;
   }
 </style>

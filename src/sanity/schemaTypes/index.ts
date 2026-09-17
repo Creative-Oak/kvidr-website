@@ -6,11 +6,14 @@ import {changelogEntry} from './documents/changelogEntry'
 import {contactPage} from './documents/contactPage'
 import {homePage} from './documents/homePage'
 import {post} from './documents/post'
+import {pricingPage} from './documents/pricingPage'
 import {siteSettings} from './documents/siteSettings'
 
 import {captionedImage} from './objects/captionedImage'
+import {faqItem} from './objects/faqItem'
 import {featureItem} from './objects/featureItem'
 import {link} from './objects/link'
+import {pricingPlan} from './objects/pricingPlan'
 import {qualityItem} from './objects/qualityItem'
 import {richText} from './objects/richText'
 import {seo} from './objects/seo'
@@ -20,6 +23,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   // Documents
   siteSettings,
   homePage,
+  pricingPage,
   aboutPage,
   contactPage,
   post,
@@ -33,7 +37,9 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   qualityItem,
   featureItem,
   shortcutItem,
+  pricingPlan,
+  faqItem,
 ]
 
 /** Document types that exist exactly once. */
-export const singletonTypes = new Set(['siteSettings', 'homePage', 'aboutPage', 'contactPage'])
+export const singletonTypes = new Set(['siteSettings', 'homePage', 'pricingPage', 'aboutPage', 'contactPage'])

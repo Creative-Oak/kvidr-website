@@ -82,6 +82,23 @@ export const homePageQuery = groq`
   }
 `
 
+export const pricingPageQuery = groq`
+  *[_type == "pricingPage"][0]{
+    eyebrow,
+    headline,
+    lede,
+    plans[]{_key, platform, title, priceType, priceNote, status, body, includes, action},
+    sameAppNote,
+    licenceHeading,
+    licenceBody[]{${richTextFields}},
+    faqHeading,
+    faq[]{_key, question, answer[]{${richTextFields}}},
+    ctaHeading,
+    ctaBody,
+    seo{title, description, image{${imageFields}}}
+  }
+`
+
 export const aboutPageQuery = groq`
   *[_type == "aboutPage"][0]{
     eyebrow,

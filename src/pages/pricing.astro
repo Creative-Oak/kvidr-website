@@ -1,0 +1,533 @@
+---
+import AppIcon from '../components/AppIcon.astro'
+import Glyph from '../components/Glyph.astro'
+import PageHeader from '../components/PageHeader.astro'
+import PortableText from '../components/PortableText.astro'
+import SubscribeForm from '../components/SubscribeForm.astro'
+import Layout from '../layouts/Layout.astro'
+import {formatPrice, withPrice} from '../lib/price'
+import {loadQuery} from '../sanity/lib/load-query'
+import {pricingPageQuery, siteSettingsQuery} from '../sanity/lib/queries'
+import {clean} from '../sanity/lib/stega'
+
+const [{data: page}, {data: settings}] = await Promise.all([
+  loadQuery<any>({query: pricingPageQuery}),
+  loadQuery<any>({query: siteSettingsQuery}),
+])
+
+const price = formatPrice(settings)
+const downloadUrl = clean(settings?.downloadUrl)
+const iosAppStoreUrl = clean(settings?.iosAppStoreUrl)
+const githubUrl = clean(settings?.githubUrl)
+const repoDir = githubUrl?.replace(/\/+$/, '').split('/').pop()
+
+const plans: any[] = page?.plans ?? []
+
+const priceFor = (plan: any) => {
+  switch (clean(plan.priceType)) {
+    case 'signed':
+      return price ?? 'Paid'
+    case 'free':
+      return 'Free'
+    default:
+      return 'Soon'
+  }
+}
+
+// FAQ answers as plain text, for the structured data only.
+const plainText = (blocks: any[] = []) =>
+  clean(
+    blocks
+      .filter((b) => b._type === 'block')
+      .map((b) => b.children?.map((c: any) => c.text).join('') ?? '')
+      .join('\n\n'),
+  )
+
+const faqStructuredData =
+  page?.faq?.length > 0
+    ? JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: page.faq.map((item: any) => ({
+          '@type': 'Question',
+          name: clean(withPrice(item.question, price)),
+          acceptedAnswer: {'@type': 'Answer', text: withPrice(plainText(item.answer), price)},
+        })),
+      }).replace(/</g, '\\u003c')
+    : null
+---
+
+<Layout
+  title="Pricing"
+  description={page?.seo?.description ? withPrice(page.seo.description, price) : undefined}
+  image={page?.seo?.image}
+>
+  <PageHeader
+    eyebrow={page?.eyebrow ?? 'Pricing'}
+    headline={page?.headline ?? 'Pricing'}
+    lede={withPrice(page?.lede, price)}
+  />
+
+  <!-- ================= Plans ================= -->
+  {
+    plans.length > 0 && (
+      <section class="plans-section">
+        <div class="shell">
+          <ol class="plans" role="list" style={`--plan-count:${plans.length}`}>
+            {plans.map((plan, i) => {
+              const platform = clean(plan.platform)
+              const action = clean(plan.action)
+              const priceType = clean(plan.priceType)
+              return (
+                <li
+                  class={`plan plan--${priceType}`}
+                  data-reveal
+                  style={`--reveal-delay:${i * 80}ms`}
+                >
+                  <p class="plan__platform t-label">
+                    <Glyph name={platform === 'iphone' ? 'phone' : 'laptop'} size={15} />
+                    {platform === 'iphone' ? 'iPhone' : 'Mac'}
+                    {plan.status && !(action === 'appstore' && iosAppStoreUrl) && (
+                      <span class="plan__status">{plan.status}</span>
+                    )}
+                  </p>
+
+                  <h2 class="plan__title">{plan.title}</h2>
+
+                  <p class="plan__price">{priceFor(plan)}</p>
+                  {plan.priceNote && <p class="plan__pricenote t-small">{plan.priceNote}</p>}
+
+                  {plan.body && <p class="plan__body t-prose">{withPrice(plan.body, price)}</p>}
+
+                  {plan.includes?.length > 0 && (
+                    <ul class="plan__includes" role="list">
+                      {plan.includes.map((item: string) => (
+                        <li>
+                          <Glyph name="check" size={15} class="plan__check" />
+                          <span>{withPrice(item, price)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {action === 'source' && githubUrl && repoDir && (
+                    <pre class="plan__code" aria-label="Commands to build kvidr yourself"><code><span class="plan__line"><span class="plan__prompt">$ </span>git clone {githubUrl}</span><span class="plan__line"><span class="plan__prompt">$ </span>open {repoDir}/Kvidr.xcodeproj</span></code></pre>
+                  )}
+
+                  <div class="plan__action">
+                    {action === 'buy' &&
+                      (downloadUrl ? (
+                        <a class="btn btn--accent" href={downloadUrl}>
+                          Buy for Mac{price && <span class="btn__price">{price}</span>}
+                        </a>
+                      ) : (
+                        <p class="plan__soon t-small">
+                          <span class="plan__soondot" aria-hidden="true" />
+                          The signed build is on its way
+                        </p>
+                      ))}
+
+                    {action === 'source' && githubUrl && (
+                      <a class="btn btn--ghost" href={githubUrl} target="_blank" rel="noopener noreferrer">
+                        Read the source
+                      </a>
+                    )}
+
+                    {action === 'appstore' &&
+                      (iosAppStoreUrl ? (
+                        <a class="btn btn--accent" href={iosAppStoreUrl}>
+                          View on the App Store
+                        </a>
+                      ) : (
+                        <a class="btn btn--ghost" href="#notify">
+                          Tell me when it ships
+                        </a>
+                      ))}
+                  </div>
+                </li>
+              )
+            })}
+          </ol>
+
+          {page?.sameAppNote && (
+            <p class="plans__note t-small" data-reveal>
+              {withPrice(page.sameAppNote, price)}
+            </p>
+          )}
+        </div>
+      </section>
+    )
+  }
+
+  <!-- ================= Licence ================= -->
+  {
+    page?.licenceHeading && (
+      <section class="section section--ruled">
+        <div class="shell split">
+          <h2 class="t-h2 split__heading" data-reveal>{page.licenceHeading}</h2>
+          <div data-reveal style="--reveal-delay:80ms">
+            <PortableText value={page.licenceBody} />
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- ================= Questions ================= -->
+  {
+    page?.faq?.length > 0 && (
+      <section class="section section--ruled">
+        <div class="shell split">
+          <h2 class="t-h2 split__heading" data-reveal>{page.faqHeading ?? 'Questions'}</h2>
+
+          <div class="faq" data-reveal style="--reveal-delay:80ms">
+            {page.faq.map((item: any, i: number) => (
+              <details class="faq__item" open={i === 0}>
+                <summary class="faq__question">
+                  <span>{withPrice(item.question, price)}</span>
+                  <span class="faq__toggle" aria-hidden="true" />
+                </summary>
+                <div class="faq__answer">
+                  <PortableText value={item.answer} />
+                </div>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- ================= Notify ================= -->
+  <section class="section section--ruled" id="notify">
+    <div class="shell notify">
+      <div>
+        <div class="notify__icon" data-reveal>
+          <AppIcon size={96} />
+        </div>
+        <h2 class="t-h2 measure-tight" data-reveal>{page?.ctaHeading ?? 'Hear when it is ready'}</h2>
+        {
+          page?.ctaBody && (
+            <p class="t-lede measure notify__body" data-reveal style="--reveal-delay:70ms">
+              {page.ctaBody}
+            </p>
+          )
+        }
+      </div>
+      <div class="notify__form" data-reveal style="--reveal-delay:140ms">
+        <SubscribeForm id="subscribe-pricing" />
+      </div>
+    </div>
+  </section>
+
+  {faqStructuredData && <script type="application/ld+json" is:inline set:html={faqStructuredData} />}
+</Layout>
+
+<style>
+  /* ---- Plans ---- */
+  .plans-section {
+    padding-bottom: var(--section-y);
+  }
+
+  .plans {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1px;
+    background: var(--rule);
+    border-block: 1px solid var(--rule);
+  }
+
+  @media (min-width: 48rem) {
+    .plans {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 70rem) {
+    .plans {
+      grid-template-columns: repeat(var(--plan-count, 3), minmax(0, 1fr));
+    }
+  }
+
+  .plan {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: clamp(1.75rem, 3.5vw, 2.5rem) clamp(1.25rem, 2.5vw, 2rem);
+    background: var(--paper);
+  }
+
+  /* Fixed height, so a plan with a status badge lines up with plans without. */
+  .plan__platform {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    min-height: 1.6rem;
+    color: var(--ink-2);
+  }
+
+  .plan__status {
+    margin-left: 0.25rem;
+    padding: 0.15rem 0.55rem;
+    line-height: 1.3;
+    border-radius: 999px;
+    color: var(--teal);
+    background: var(--teal-wash);
+    letter-spacing: 0.1em;
+  }
+
+  .plan__title {
+    margin-top: 1.1rem;
+    font-size: 1.125rem;
+    font-weight: 650;
+    letter-spacing: -0.018em;
+  }
+
+  .plan__price {
+    margin-top: 0.85rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.6rem, 1.8rem + 2.4vw, 3.75rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.045em;
+    font-variant-numeric: proportional-nums;
+  }
+
+  .plan--signed .plan__price {
+    background: linear-gradient(180deg, var(--sky-light) -20%, var(--accent) 70%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .plan--free .plan__price {
+    color: var(--ink);
+  }
+
+  .plan--tba .plan__price {
+    background: linear-gradient(180deg, var(--teal-light) -20%, var(--teal) 70%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .plan__pricenote {
+    margin-top: 0.45rem;
+    color: var(--ink-3);
+  }
+
+  .plan__body {
+    margin-top: 1.25rem;
+    font-size: 1rem;
+    max-width: 38ch;
+  }
+
+  .plan__includes {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 1.25rem 0 0;
+    border-top: 1px solid var(--rule);
+    width: 100%;
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .plan__includes li {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    color: var(--ink-2);
+  }
+
+  .plan__includes :global(.plan__check) {
+    flex: none;
+    margin-top: 0.15rem;
+    color: var(--accent);
+  }
+
+  .plan--tba .plan__includes :global(.plan__check) {
+    color: var(--teal);
+  }
+
+  .plan__code {
+    width: 100%;
+    margin: 1.5rem 0 0;
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius-s);
+    border: 1px solid var(--rule);
+    background: var(--paper-2);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.7;
+    color: var(--ink);
+  }
+
+  .plan__line {
+    display: block;
+    padding-left: 1.2em;
+    text-indent: -1.2em;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .plan__prompt {
+    color: var(--ink-3);
+    user-select: none;
+  }
+
+  /* Buttons line up across plans, however long each plan's copy runs. */
+  .plan__action {
+    margin-top: auto;
+    padding-top: 1.75rem;
+  }
+
+  .plan__soon {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--ink-2);
+  }
+
+  .plan__soondot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-wash);
+  }
+
+  .plans__note {
+    margin-top: 1.5rem;
+    max-width: 62ch;
+    color: var(--ink-3);
+  }
+
+  :global(.btn__price) {
+    margin-left: 0.15rem;
+    padding: 0.1em 0.5em;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  /* ---- Heading-left / content-right blocks ---- */
+  .split {
+    display: grid;
+    gap: 1.75rem clamp(2rem, 6vw, 6rem);
+    align-items: start;
+  }
+
+  @media (min-width: 62rem) {
+    .split {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    }
+
+    .split__heading {
+      position: sticky;
+      top: 7.5rem;
+    }
+  }
+
+  .split__heading {
+    max-width: 14ch;
+  }
+
+  /* ---- Questions ---- */
+  .faq {
+    border-top: 1px solid var(--rule);
+  }
+
+  .faq__item {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .faq__question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    padding-block: 1.25rem;
+    cursor: pointer;
+    list-style: none;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    transition: color 0.2s var(--ease);
+  }
+
+  .faq__question::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq__question:hover {
+    color: var(--accent);
+  }
+
+  /* A plus that turns into a minus. */
+  .faq__toggle {
+    position: relative;
+    width: 0.8rem;
+    height: 0.8rem;
+    flex: none;
+  }
+
+  .faq__toggle::before,
+  .faq__toggle::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1.5px;
+    margin-top: -0.75px;
+    border-radius: 2px;
+    background: currentColor;
+    transition: transform 0.3s var(--ease-out);
+  }
+
+  .faq__toggle::after {
+    transform: rotate(90deg);
+  }
+
+  .faq__item[open] .faq__toggle::after {
+    transform: rotate(0deg);
+  }
+
+  .faq__answer {
+    padding-bottom: 1.5rem;
+  }
+
+  .faq__answer :global(.pt) {
+    font-size: 1rem;
+  }
+
+  /* ---- Notify ---- */
+  .notify {
+    display: grid;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+  }
+
+  @media (min-width: 62rem) {
+    .notify {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .notify__form {
+      padding-top: calc(96px + clamp(1.5rem, 3vw, 2.25rem) + 0.6rem);
+    }
+  }
+
+  .notify__icon {
+    margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
+    margin-left: -0.4rem;
+  }
+
+  .notify__body {
+    margin-top: 1.25rem;
+  }
+</style>

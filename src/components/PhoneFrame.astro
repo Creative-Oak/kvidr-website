@@ -6,12 +6,18 @@ interface Props {
   image?: any
   /** Shown under the frame while there is no real screenshot. */
   stubLabel?: string
+  /** Hide the label, e.g. when another frame nearby already carries one. */
+  showStub?: boolean
+  /** The glow behind the device. Off when it sits over something that glows. */
+  glow?: boolean
   class?: string
 }
 
 const {
   image,
   stubLabel = 'Illustration — the iPhone app is in development',
+  showStub = true,
+  glow = true,
   class: className = '',
 } = Astro.props
 
@@ -19,7 +25,7 @@ const hasImage = Boolean(image?.asset)
 ---
 
 <figure class={`phone ${className}`}>
-  <div class="phone__glow" aria-hidden="true"></div>
+  {glow && <div class="phone__glow" aria-hidden="true" />}
 
   <div class="phone__device">
     <div class="phone__screen">
@@ -42,7 +48,7 @@ const hasImage = Boolean(image?.asset)
 
   {image?.caption && <figcaption class="t-small phone__caption">{image.caption}</figcaption>}
   {
-    !hasImage && (
+    !hasImage && showStub && (
       <p class="t-label phone__stub">
         <span class="phone__stubdot" /> {stubLabel}
       </p>

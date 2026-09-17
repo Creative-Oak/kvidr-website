@@ -1,7 +1,7 @@
 # kvidr.app
 
-The website for [kvidr](https://github.com/Magniswerfer/native-nextcloud-chat) — native
-Nextcloud Talk for the Mac, with an iPhone app in development. The app is MIT licensed; the
+The website for [kvidr](https://github.com/Creative-Oak/native-nextcloud-chat) — native
+Nextcloud Talk for Mac and iPhone. The Mac app came first; the iPhone app is in development. The app is MIT licensed; the
 signed build costs a small price, and anyone can build it themselves for free.
 
 Astro in SSR mode, Sanity for content, with Presentation live preview. Deployed as a
@@ -37,7 +37,7 @@ npm run dev               # http://localhost:4321, Studio at /studio
 
 The Studio is embedded at **`/studio`** — there is no separate studio to deploy.
 
-- **Home page**, **About page**, **Contact page** and **Site settings** are singletons.
+- **Home page**, **Pricing page**, **About page**, **Contact page** and **Site settings** are singletons.
   They cannot be duplicated or deleted, and they are pinned to the top of the sidebar.
 - **Blog** and **Changelog** are ordinary document lists.
 - **Preview** (the tab next to Structure) opens Presentation: the site renders in a frame,
@@ -69,6 +69,13 @@ Store" button appears. Upload a portrait screenshot to replace the drawn iPhone.
 
 The home page also emits `SoftwareApplication` structured data with the price and the MIT
 licence, so search results can show both.
+
+**`/pricing`** is its own page, edited in **Pricing page**. Each plan picks a platform, a price
+type — *signed build price* (read from Site settings, so it cannot disagree with the rest of
+the site), *free*, or *to be announced* — and an action: buy, read the source, or App Store.
+The App Store action falls back to the mailing list on the same page until the iPhone URL is
+set. Its questions render as native `<details>` and are also emitted as `FAQPage` structured
+data.
 
 ## Deploying to Coolify
 

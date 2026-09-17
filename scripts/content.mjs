@@ -44,26 +44,28 @@ const block = (text, style = 'normal') => {
 const bullet = (text) => ({...block(text), listItem: 'bullet', level: 1})
 const keyed = (items) => items.map((item) => ({_key: key(), ...item}))
 
-const GITHUB = 'https://github.com/Magniswerfer/native-nextcloud-chat'
+const GITHUB = 'https://github.com/Creative-Oak/native-nextcloud-chat'
 
 /* ---------- documents ---------- */
 
 const siteSettings = {
   _id: 'siteSettings',
   _type: 'siteSettings',
-  tagline: 'Native Nextcloud Talk for the Mac, with iPhone on the way. Open source, MIT licensed.',
+  tagline: 'Native Nextcloud Talk for Mac and iPhone. Open source, MIT licensed.',
   githubUrl: GITHUB,
   priceAmount: 2.99,
   priceCurrency: 'USD',
   contactEmail: 'hello@kvidr.app',
+  // Changelog lives in the footer: five links do not fit a phone's header.
   navLinks: keyed([
+    {_type: 'link', label: 'Pricing', href: '/pricing'},
     {_type: 'link', label: 'Blog', href: '/blog'},
-    {_type: 'link', label: 'Changelog', href: '/changelog'},
     {_type: 'link', label: 'About', href: '/about'},
     {_type: 'link', label: 'Contact', href: '/contact'},
   ]),
   footerLinks: keyed([
     {_type: 'link', label: 'Home', href: '/'},
+    {_type: 'link', label: 'Pricing', href: '/pricing'},
     {_type: 'link', label: 'Blog', href: '/blog'},
     {_type: 'link', label: 'Changelog', href: '/changelog'},
     {_type: 'link', label: 'About', href: '/about'},
@@ -73,9 +75,9 @@ const siteSettings = {
     '© 2026 kvidr. The source is MIT licensed; the signed builds are paid.\nNextcloud and Nextcloud Talk are trademarks of Nextcloud GmbH. This project is independent, and is not affiliated with or endorsed by Nextcloud.',
   seo: {
     _type: 'seo',
-    title: 'kvidr — a native Mac client for Nextcloud Talk',
+    title: 'kvidr — native Nextcloud Talk for Mac and iPhone',
     description:
-      'Nextcloud Talk as a genuinely excellent Mac app, with iPhone next. MIT licensed: a small price for the signed build, or free to build yourself.',
+      'Nextcloud Talk as genuinely native apps for Mac and iPhone. MIT licensed: a small price for the signed build, or free to build yourself.',
   },
 }
 
@@ -84,8 +86,8 @@ const homePage = {
   _type: 'homePage',
 
   eyebrow: 'Native Nextcloud Talk · Mac first, iPhone next',
-  headline: 'Nextcloud Talk,\nas a real\nMac app.',
-  lede: 'Swift and SwiftUI, with AppKit where AppKit behaves better. No Electron. No web view rendering your messages. The conversation list is on screen before the first network call returns.',
+  headline: 'Nextcloud Talk,\nnative on Mac\nand iPhone.',
+  lede: 'Swift and SwiftUI, on each platform’s own terms. No Electron. No web view rendering your messages. Your conversations are on screen before the first network call returns.',
   heroPriceNote: 'Open source under MIT. {price} for the signed build — or build it yourself, free.',
   statusNote: 'v1.0 — chat, complete. Calls are deliberately out of scope.',
 
@@ -95,10 +97,10 @@ const homePage = {
       'Nextcloud Talk is a sound piece of infrastructure. Its HTTP API is documented, it long-polls properly, and it is yours to host. The trouble starts at the surface: a web app in a tab, or a web app wrapped in a desktop shell, which is the same web app with a worse relationship to your keyboard.',
     ),
     block(
-      'So text selection behaves almost like text selection. The menu bar is almost real. ⌘F almost does what ⌘F does everywhere else. Nothing is broken, exactly — it just never stops reminding you where it came from.',
+      'So text selection behaves almost like text selection. On the Mac the menu bar is almost real; on a phone, it is a website pretending to be an app. Nothing is broken, exactly — it just never stops reminding you where it came from.',
     ),
     block(
-      'kvidr takes the other half of the deal. Nextcloud is the backend and the protocol; Messages.app is the benchmark for how it should feel. Where the two disagree, kvidr follows the platform.',
+      'kvidr takes the other half of the deal. Nextcloud is the backend and the protocol; Apple’s own Messages is the benchmark for how it should feel, on the Mac and on the iPhone. Where the two disagree, kvidr follows the platform.',
     ),
   ],
 
@@ -112,7 +114,7 @@ const homePage = {
     {
       _type: 'qualityItem',
       title: 'Native',
-      body: 'Real menu bar commands, real context menus, real text selection, real keyboard navigation, real window restoration. Not approximations of them.',
+      body: 'The platform’s own controls, menus, text selection and navigation — and on the Mac, real menu bar commands and window restoration. Not approximations of them.',
     },
     {
       _type: 'qualityItem',
@@ -138,7 +140,7 @@ const homePage = {
 
   featuresHeading: 'Everything you actually do in a day.',
   featuresIntro:
-    'Every feature is gated on what your server reports it can do, rather than on a version number — so anything your Nextcloud lacks is hidden, not broken.',
+    'Everything below ships in the Mac app today; the iPhone app is being built on the same foundations. Every feature is gated on what your server reports it can do, rather than on a version number — so anything your Nextcloud lacks is hidden, not broken.',
   features: keyed([
     {
       _type: 'featureItem',
@@ -190,7 +192,7 @@ const homePage = {
     },
   ]),
 
-  keyboardHeading: 'The whole app, without the mouse.',
+  keyboardHeading: 'On the Mac, the whole app without the mouse.',
   keyboardIntro:
     'Every command has a shortcut, and ⌘/ opens a window listing all of them. A representative handful:',
   shortcuts: keyed([
@@ -257,8 +259,13 @@ const homePage = {
   requirements: keyed([
     {
       _type: 'qualityItem',
-      title: 'macOS 26 or later',
+      title: 'On the Mac: macOS 26 or later',
       body: 'The app targets macOS 26 and uses Liquid Glass on its floating layer. There is no build for earlier versions.',
+    },
+    {
+      _type: 'qualityItem',
+      title: 'An iPhone — soon',
+      body: 'The iPhone app is in development. What it needs will be listed here when it ships, not guessed at before.',
     },
     {
       _type: 'qualityItem',
@@ -284,9 +291,9 @@ const homePage = {
 
   seo: {
     _type: 'seo',
-    title: 'kvidr — a native Mac client for Nextcloud Talk',
+    title: 'kvidr — native Nextcloud Talk for Mac and iPhone',
     description:
-      'Nextcloud Talk as a genuinely excellent Mac app, with iPhone next. Instant from cache, keyboard-first, MIT licensed — and a small price for the signed build.',
+      'Nextcloud Talk as genuinely native apps for Mac and iPhone. Instant from cache, no web view, MIT licensed — and a small price for the signed build.',
   },
 }
 
@@ -295,13 +302,13 @@ const aboutPage = {
   _type: 'aboutPage',
   eyebrow: 'About',
   headline: 'Why this exists.',
-  lede: 'A question worth answering properly: if Apple built a lightweight native Mac client for Nextcloud Talk, what would it feel like?',
+  lede: 'A question worth answering properly: if Apple built lightweight native apps for Nextcloud Talk — on the Mac and on the iPhone — what would they feel like?',
   body: [
     block(
       'Self-hosting solves the part of messaging that is about ownership. It rarely solves the part that is about craft. You get your data back and hand over your afternoon to an interface that is technically fine and never quite pleasant.',
     ),
     block(
-      'kvidr is an attempt to have both. Nextcloud supplies the backend and the protocol — documented HTTP APIs, a proper long poll, a server you control. The app supplies everything above that line, and takes its cues from Messages.app rather than from Talk’s web UI.',
+      'kvidr is an attempt to have both. Nextcloud supplies the backend and the protocol — documented HTTP APIs, a proper long poll, a server you control. The apps supply everything above that line, and take their cues from Apple’s Messages rather than from Talk’s web UI. The Mac came first; the iPhone is next.',
     ),
     block('What that rules out', 'h2'),
     block(
@@ -336,6 +343,138 @@ const aboutPage = {
   },
 }
 
+const pricingPage = {
+  _id: 'pricingPage',
+  _type: 'pricingPage',
+  eyebrow: 'Pricing',
+  headline: 'Open source.\nFairly priced.',
+  lede: 'Every line of kvidr is MIT licensed and free to build. The price is for not having to — and it pays for the work.',
+  plans: keyed([
+    {
+      _type: 'pricingPlan',
+      platform: 'mac',
+      title: 'Signed build',
+      priceType: 'signed',
+      priceNote: 'for the signed Mac build',
+      body: 'Download it and run it. No Xcode, no developer account, no build step.',
+      includes: [
+        'The whole app — nothing held back',
+        'Signed, so macOS opens it like any other app',
+        'Pays for continued work on kvidr',
+      ],
+      action: 'buy',
+    },
+    {
+      _type: 'pricingPlan',
+      platform: 'mac',
+      title: 'Build it yourself',
+      priceType: 'free',
+      priceNote: 'under the MIT licence',
+      body: 'Clone the repository, open it in Xcode 26 and sign it with your own Apple developer account.',
+      includes: [
+        'The same app as the signed build',
+        'Every line of source, plus the architecture notes',
+        'Yours to read, change and share under MIT',
+      ],
+      action: 'source',
+    },
+    {
+      _type: 'pricingPlan',
+      platform: 'iphone',
+      title: 'iPhone app',
+      priceType: 'tba',
+      priceNote: 'price announced when it ships',
+      status: 'In development',
+      body: 'An iPhone app is being built on the same foundations as the Mac app. Its price will be set when it is ready, not before.',
+      includes: [
+        'Swift and SwiftUI, with no web view',
+        'Talks directly to your Nextcloud server',
+        'The same foundations as the Mac app',
+      ],
+      action: 'appstore',
+    },
+  ]),
+  sameAppNote:
+    'The signed build and the one you compile yourself are the same app, built from the same source. Paying buys the build, not features.',
+
+  licenceHeading: 'What MIT means here',
+  licenceBody: [
+    block('The source of kvidr is published under the MIT licence. In practice:'),
+    bullet('You may use, copy, modify, merge, publish, distribute, sublicense and sell copies of it — including commercially.'),
+    bullet('The one condition: keep the copyright and licence notice with any copy or substantial part of it.'),
+    bullet('It comes with no warranty of any kind.'),
+    block(`That is a summary, not the licence. [Read the licence itself](${GITHUB}/blob/main/LICENSE) on GitHub.`),
+  ],
+
+  faqHeading: 'Questions',
+  faq: keyed([
+    {
+      _type: 'faqItem',
+      question: 'If it is open source, why does it cost money?',
+      answer: [
+        block(
+          'Because building and maintaining a good app takes time, and a small price for the convenient version is an honest way to pay for it. Nobody has to pay: the source is MIT licensed and anyone can build it.',
+        ),
+      ],
+    },
+    {
+      _type: 'faqItem',
+      question: 'Is the paid build different from the one I can compile?',
+      answer: [
+        block(
+          'No. It is the same app, built from the same source. You are paying for the build and the signing, and for not having to open Xcode — not for features.',
+        ),
+      ],
+    },
+    {
+      _type: 'faqItem',
+      question: 'What do I need to build it myself?',
+      answer: [
+        block(
+          `A Mac running macOS 26, Xcode 26, and an Apple developer account to sign it with. The [repository’s README](${GITHUB}#readme) walks through building and signing.`,
+        ),
+      ],
+    },
+    {
+      _type: 'faqItem',
+      question: 'How much will the iPhone app cost?',
+      answer: [
+        block(
+          'That has not been decided. The price will be announced when the app is ready. Join the list below to hear about it.',
+        ),
+      ],
+    },
+    {
+      _type: 'faqItem',
+      question: 'Do I need a Nextcloud server?',
+      answer: [
+        block(
+          'Yes. kvidr is a client, so you need an account on a Nextcloud server with the Talk app installed — your own, or one run by someone else.',
+        ),
+      ],
+    },
+    {
+      _type: 'faqItem',
+      question: 'Is kvidr made by Nextcloud?',
+      answer: [
+        block(
+          'No. kvidr is an independent client that talks to Nextcloud Talk’s documented APIs. Nextcloud and Nextcloud Talk are trademarks of Nextcloud GmbH, which is not affiliated with and does not endorse this project.',
+        ),
+      ],
+    },
+  ]),
+
+  ctaHeading: 'Hear when it is ready',
+  ctaBody:
+    'One email when the signed Mac build is available, and one when the iPhone app is. Nothing else.',
+
+  seo: {
+    _type: 'seo',
+    description:
+      'kvidr is MIT licensed and free to build. The signed Mac build is {price}; the iPhone app’s price will be announced when it ships.',
+  },
+}
+
 const contactPage = {
   _id: 'contactPage',
   _type: 'contactPage',
@@ -353,7 +492,7 @@ const contactPage = {
   ],
   seo: {
     _type: 'seo',
-    description: 'Get in touch about kvidr — the native Mac client for Nextcloud Talk.',
+    description: 'Get in touch about kvidr — native Nextcloud Talk for Mac and iPhone.',
   },
 }
 
@@ -454,6 +593,7 @@ const firstPost = {
 export const documents = {
   siteSettings,
   homePage,
+  pricingPage,
   aboutPage,
   contactPage,
   author,

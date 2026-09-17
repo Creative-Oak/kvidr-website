@@ -1,0 +1,60 @@
+import {defineArrayMember, defineField, defineType} from 'sanity'
+
+export const pricingPage = defineType({
+  name: 'pricingPage',
+  title: 'Pricing page',
+  type: 'document',
+  groups: [
+    {name: 'intro', title: 'Intro', default: true},
+    {name: 'plans', title: 'Plans'},
+    {name: 'licence', title: 'Licence'},
+    {name: 'faq', title: 'Questions'},
+    {name: 'cta', title: 'Call to action'},
+    {name: 'seo', title: 'SEO'},
+  ],
+  fields: [
+    defineField({name: 'eyebrow', type: 'string', group: 'intro'}),
+    defineField({
+      name: 'headline',
+      type: 'text',
+      rows: 2,
+      group: 'intro',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'lede',
+      type: 'text',
+      rows: 3,
+      group: 'intro',
+      description: 'Write {price} to insert the price.',
+    }),
+    defineField({
+      name: 'plans',
+      type: 'array',
+      group: 'plans',
+      of: [defineArrayMember({type: 'pricingPlan'})],
+      validation: (Rule) => Rule.min(1).max(4),
+    }),
+    defineField({
+      name: 'sameAppNote',
+      title: 'Note under the plans',
+      type: 'text',
+      rows: 2,
+      group: 'plans',
+    }),
+    defineField({name: 'licenceHeading', title: 'Heading', type: 'string', group: 'licence'}),
+    defineField({name: 'licenceBody', title: 'Body', type: 'richText', group: 'licence'}),
+    defineField({name: 'faqHeading', title: 'Heading', type: 'string', group: 'faq'}),
+    defineField({
+      name: 'faq',
+      title: 'Questions',
+      type: 'array',
+      group: 'faq',
+      of: [defineArrayMember({type: 'faqItem'})],
+    }),
+    defineField({name: 'ctaHeading', title: 'Heading', type: 'string', group: 'cta'}),
+    defineField({name: 'ctaBody', title: 'Body', type: 'text', rows: 3, group: 'cta'}),
+    defineField({name: 'seo', type: 'seo', group: 'seo'}),
+  ],
+  preview: {prepare: () => ({title: 'Pricing page'})},
+})
