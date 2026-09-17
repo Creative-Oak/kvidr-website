@@ -24,7 +24,9 @@ FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ARG PUBLIC_SANITY_PROJECT_ID
+# Not a secret: the project id is public in every page. Defaulted so a
+# missed "build variable" tick in Coolify cannot break the build.
+ARG PUBLIC_SANITY_PROJECT_ID=9c35nr1d
 ARG PUBLIC_SANITY_DATASET=production
 ARG PUBLIC_SITE_URL=https://kvidr.app
 ARG PUBLIC_SANITY_VISUAL_EDITING_ENABLED=false
