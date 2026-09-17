@@ -1,4 +1,7 @@
 ---
+// Pre-launch there are no prices to show. Set PUBLIC_SHOW_PRICING=true at launch.
+if (import.meta.env.PUBLIC_SHOW_PRICING !== 'true') return Astro.redirect('/#notify', 302)
+
 import AppIcon from '../components/AppIcon.astro'
 import Glyph from '../components/Glyph.astro'
 import PageHeader from '../components/PageHeader.astro'

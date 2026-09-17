@@ -60,26 +60,24 @@ const siteSettings = {
   contactEmail: 'hello@kvidr.app',
   // Changelog lives in the footer: five links do not fit a phone's header.
   navLinks: keyed([
-    {_type: 'link', label: 'Pricing', href: '/pricing'},
     {_type: 'link', label: 'Blog', href: '/blog'},
     {_type: 'link', label: 'About', href: '/about'},
     {_type: 'link', label: 'Contact', href: '/contact'},
   ]),
   footerLinks: keyed([
     {_type: 'link', label: 'Home', href: '/'},
-    {_type: 'link', label: 'Pricing', href: '/pricing'},
     {_type: 'link', label: 'Blog', href: '/blog'},
     {_type: 'link', label: 'Changelog', href: '/changelog'},
     {_type: 'link', label: 'About', href: '/about'},
     {_type: 'link', label: 'Contact', href: '/contact'},
   ]),
   footerNote:
-    '© 2026 kvidr. The source is MIT licensed; the signed builds are paid.\nNextcloud and Nextcloud Talk are trademarks of Nextcloud GmbH. This project is independent, and is not affiliated with or endorsed by Nextcloud.',
+    '© 2026 kvidr. Not launched yet. The source is MIT licensed.\nNextcloud and Nextcloud Talk are trademarks of Nextcloud GmbH. This project is independent, and is not affiliated with or endorsed by Nextcloud.',
   seo: {
     _type: 'seo',
     title: 'kvidr — native Nextcloud Talk for Mac and iPhone',
     description:
-      'Nextcloud Talk as genuinely native apps for Mac and iPhone. MIT licensed: a small price for the signed build, or free to build yourself.',
+      'Nextcloud Talk as genuinely native apps for Mac and iPhone. Open source under MIT, and not launched yet: sign up to hear when it is.',
   },
 }
 
@@ -87,11 +85,11 @@ const homePage = {
   _id: 'homePage',
   _type: 'homePage',
 
-  eyebrow: 'Native Nextcloud Talk · Mac first, iPhone next',
+  eyebrow: 'Native Nextcloud Talk · Not launched yet',
   headline: 'Nextcloud Talk,\nnative on Mac\nand iPhone.',
   lede: 'Swift and SwiftUI, on each platform’s own terms. No Electron. No web view rendering your messages. Your conversations are on screen before the first network call returns.',
-  heroPriceNote: 'Open source under MIT. The Mac app is from {price}, with updates included — or build it yourself, free.',
-  statusNote: 'v1.0 — chat, complete. Calls are deliberately out of scope.',
+  heroPriceNote: '',
+  statusNote: 'Not launched yet — there is nothing to download or buy today.',
 
   problemHeading: 'A good protocol, wearing a browser.',
   problemBody: [
@@ -142,7 +140,7 @@ const homePage = {
 
   featuresHeading: 'Everything you actually do in a day.',
   featuresIntro:
-    'Everything below ships in the Mac app today; the iPhone app is being built on the same foundations. Every feature is gated on what your server reports it can do, rather than on a version number — so anything your Nextcloud lacks is hidden, not broken.',
+    'Everything below is built into the Mac app ahead of launch; the iPhone app is being built on the same foundations. Every feature is gated on what your server reports it can do, rather than on a version number — so anything your Nextcloud lacks is hidden, not broken.',
   features: keyed([
     {
       _type: 'featureItem',
@@ -224,7 +222,7 @@ const homePage = {
       'The Mac app already keeps everything below the interface in its own Swift package, with no SwiftUI in it. That is what makes an iPhone app a second interface rather than a second app.',
     ),
     block(
-      'It is not ready, and there is no date yet. It will be its own purchase — buying the Mac app does not include it. Join the list at the bottom of this page to hear when it is ready.',
+      'It is not ready, and there is no date yet. Join the launch list at the bottom of this page to hear when it is.',
     ),
   ],
 
@@ -276,8 +274,8 @@ const homePage = {
     },
     {
       _type: 'qualityItem',
-      title: 'The Mac app, or Xcode 26',
-      body: 'Buy it here or on the Mac App Store, or compile it yourself in Xcode 26 and sign it with your own Apple developer account. Same app either way.',
+      title: 'A signed build at launch, or Xcode 26',
+      body: 'There is no signed build yet. Until there is, the source is public: compile it in Xcode 26 and sign it with your own Apple developer account.',
     },
     {
       _type: 'qualityItem',
@@ -286,16 +284,16 @@ const homePage = {
     },
   ]),
 
-  ctaHeading: 'Want to know when there is something to download?',
+  ctaHeading: 'Get an email the day kvidr launches.',
   ctaBody:
-    'kvidr was written without a macOS SDK — type-checked against stand-in frameworks and verified in CI, but not yet launched on a Mac. When the signed build is ready, and later the iPhone app, this list is how you will hear about it.',
-  ctaSubscribeLabel: 'Keep me posted',
+    'Nothing is out yet: no download, no App Store listing. Leave your email and you will hear when the Mac app launches, and again when the iPhone app does. Launch news only — no newsletter, and unsubscribing takes one click.',
+  ctaSubscribeLabel: 'Notify me at launch',
 
   seo: {
     _type: 'seo',
     title: 'kvidr — native Nextcloud Talk for Mac and iPhone',
     description:
-      'Nextcloud Talk as genuinely native apps for Mac and iPhone. Instant from cache, no web view, MIT licensed — and a small price for the signed build.',
+      'Nextcloud Talk as genuinely native apps for Mac and iPhone. Instant from cache, no web view, MIT licensed. Not launched yet — sign up for launch news.',
   },
 }
 
@@ -326,12 +324,12 @@ const aboutPage = {
     block(
       'That catches a great deal, and there are things it cannot catch: SwiftData’s macros, the Keychain, and how Liquid Glass actually renders. Those wait for a Mac.',
     ),
-    block('Why it costs money, and why it does not have to', 'h2'),
+    block('Open source, all of it', 'h2'),
     block(
       `Everything is [open on GitHub](${GITHUB}) under the MIT licence — the app, the architecture notes, the API audit and the implementation plan. Anyone with a Mac and an Apple developer account can build kvidr, sign it and run it without paying anything.`,
     ),
     block(
-      'The signed app is for everyone who would rather press a button than open Xcode. It costs a small price — on this site, or a little more on the Mac App Store — and future updates are included. That is the entire business model: convenience for a little money, with no features held back from people who build it themselves.',
+      'None of it has launched yet. When it does, there will be a signed build for everyone who would rather press a button than open Xcode — and nothing held back from people who build it themselves.',
     ),
     block('What is next', 'h2'),
     block(
@@ -559,7 +557,7 @@ const changelog100 = {
   _type: 'changelogEntry',
   version: '1.0.0',
   releasedAt: '2026-09-14',
-  headline: 'The first release: a native macOS client for Nextcloud Talk’s text chat.',
+  headline: 'Not released yet — what the first version of the Mac app contains.',
   body: [
     block('Accounts', 'h2'),
     bullet('Login Flow v2 only. You approve the app in your browser and it receives a device-specific app password; your Nextcloud password is never typed into, or seen by, this app.'),
@@ -597,7 +595,7 @@ const changelog100 = {
     bullet('Liquid Glass on macOS 26, applied to the floating layer — message actions, panels, reaction pills, upload rows — and deliberately not to the transcript, which is content.'),
     bullet('A keyboard shortcuts window (⌘/), because every command here has a shortcut.'),
 
-    block('Not in this release', 'h2'),
+    block('Not in the first version', 'h2'),
     bullet('Calls. Deliberately out of scope; the architecture notes describe what is left open for them.'),
     bullet('Typing indicators and user-status editing, which need Talk’s signaling API.'),
     bullet('Interactive polls, voice messages, pins and reminders. Polls and voice messages are shown, not yet answered or played.'),

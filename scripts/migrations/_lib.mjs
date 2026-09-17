@@ -9,7 +9,10 @@
 import {createClient} from '@sanity/client'
 import {readFileSync} from 'node:fs'
 
-import {documents} from '../content.mjs'
+import {documents as byName} from '../content.mjs'
+
+// Keyed by document id; content.mjs names some documents differently.
+const documents = Object.fromEntries(Object.values(byName).map((doc) => [doc._id, doc]))
 
 function loadEnv() {
   return Object.fromEntries(

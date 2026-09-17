@@ -67,7 +67,9 @@ export default defineConfig({
     }),
     react(),
     sitemap({
-      filter: (page) => !page.includes('/studio'),
+      filter: (page) =>
+        !page.includes('/studio') &&
+        (env.PUBLIC_SHOW_PRICING === 'true' || !page.includes('/pricing')),
     }),
   ],
   vite: {

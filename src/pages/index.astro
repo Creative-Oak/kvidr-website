@@ -11,7 +11,6 @@ import Layout from '../layouts/Layout.astro'
 import {loadQuery} from '../sanity/lib/load-query'
 import {homePageQuery, siteSettingsQuery} from '../sanity/lib/queries'
 import {clean} from '../sanity/lib/stega'
-import {fill, fillBlocks, priceTokens} from '../lib/price'
 
 const [{data: home}, {data: settings}] = await Promise.all([
   loadQuery<any>({query: homePageQuery}),
@@ -19,16 +18,8 @@ const [{data: home}, {data: settings}] = await Promise.all([
 ])
 
 const headline = home?.headline ?? 'Nextcloud Talk,\nfinally at home\non the Mac.'
-const downloadUrl = clean(settings?.downloadUrl)
 const githubUrl = clean(settings?.githubUrl)
 const iosAppStoreUrl = clean(settings?.iosAppStoreUrl)
-const hasDownload = Boolean(downloadUrl)
-const tokens = priceTokens(settings)
-const {price, appStorePrice} = tokens
-const macAppStoreUrl = clean(settings?.macAppStoreUrl)
-
-// "https://github.com/owner/repo" → "repo", for the clone snippet.
-const repoDir = githubUrl?.replace(/\/+$/, '').split('/').pop()
 
 /*
  * Section numbers are counted, not typed. An empty section does not render,
@@ -41,7 +32,6 @@ const sectionOrder = [
   ['keyboard', home?.shortcuts?.length > 0],
   ['ios', Boolean(home?.iosHeading)],
   ['privacy', Boolean(home?.privacyHeading)],
-  ['pricing', Boolean(home?.pricingHeading)],
   ['requirements', home?.requirements?.length > 0],
 ] as const
 
@@ -49,7 +39,7 @@ const visible = sectionOrder.filter(([, shown]) => shown).map(([key]) => key)
 const num = (key: (typeof sectionOrder)[number][0]) =>
   String(visible.indexOf(key) + 1).padStart(2, '0')
 
-// Structured data, so search engines can show what kvidr is and what it costs.
+// Structured data, so search engines can show what kvidr is. No offers until it launches.
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
@@ -60,25 +50,7 @@ const structuredData = {
   license: 'https://opensource.org/license/mit',
   url: new URL('/', Astro.site ?? Astro.url).toString(),
   ...(githubUrl ? {sameAs: [githubUrl]} : {}),
-  // One offer per way to buy the Mac app.
-  offers: [
-    typeof settings?.priceAmount === 'number' && {
-      '@type': 'Offer',
-      name: 'Mac app with a licence code',
-      price: settings.priceAmount.toFixed(2),
-      priceCurrency: clean(settings?.priceCurrency) || 'USD',
-      ...(downloadUrl ? {url: downloadUrl} : {}),
-    },
-    typeof settings?.appStorePriceAmount === 'number' && {
-      '@type': 'Offer',
-      name: 'Mac App Store',
-      price: settings.appStorePriceAmount.toFixed(2),
-      priceCurrency: clean(settings?.priceCurrency) || 'USD',
-      ...(macAppStoreUrl ? {url: macAppStoreUrl} : {}),
-    },
-  ].filter(Boolean),
 }
-if (structuredData.offers.length === 0) delete (structuredData as any).offers
 // Escape "<" so nothing in the CMS can close the script element early.
 const structuredDataJson = JSON.stringify(structuredData).replace(/</g, '\\u003c')
 ---
@@ -101,47 +73,15 @@ const structuredDataJson = JSON.stringify(structuredData).replace(/</g, '\\u003c
           <p class="t-lede">{home?.lede}</p>
 
           <div class="hero__actions">
+            <a class="btn btn--accent" href="#notify">Get launch news</a>
             {
-              hasDownload ? (
-                <a class="btn btn--accent" href={downloadUrl}>
-                  Buy for Mac{price && <span class="btn__price">{price}</span>}
+              githubUrl && (
+                <a class="btn btn--ghost" href={githubUrl} target="_blank" rel="noopener noreferrer">
+                  Read the source
                 </a>
-              ) : (
-                githubUrl && (
-                  <a
-                    class="btn btn--accent"
-                    href={githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Read the source
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path d="M7 17 17 7M9 7h8v8" />
-                    </svg>
-                  </a>
-                )
               )
             }
-            <a class="btn btn--ghost" href={home?.pricingHeading ? '#get' : '#keyboard'}>
-              {home?.pricingHeading ? 'How to get it' : 'See the shortcuts'}
-            </a>
           </div>
-
-          {
-            home?.heroPriceNote && (
-              <p class="t-small hero__price">{fill(home.heroPriceNote, tokens)}</p>
-            )
-          }
 
           {
             home?.statusNote && (
@@ -310,7 +250,7 @@ const structuredDataJson = JSON.stringify(structuredData).replace(/</g, '\\u003c
                 {home.iosHeading}
               </h2>
               <div data-reveal style="--reveal-delay:100ms">
-                <PortableText value={fillBlocks(home.iosBody, tokens)} class="ios__body" />
+                <PortableText value={home.iosBody} class="ios__body" />
               </div>
               {iosAppStoreUrl && (
                 <a class="btn btn--accent ios__cta" href={iosAppStoreUrl} data-reveal>
@@ -340,75 +280,6 @@ const structuredDataJson = JSON.stringify(structuredData).replace(/</g, '\\u003c
             <div data-reveal style="--reveal-delay:80ms">
               <PortableText value={home.privacyBody} />
             </div>
-          </div>
-        </div>
-      </section>
-    )
-  }
-
-  <!-- ================= Price ================= -->
-  {
-    home?.pricingHeading && (
-      <section class="section section--ruled" id="get">
-        <div class="shell spine">
-          <SectionLabel num={num('pricing')}>Price</SectionLabel>
-
-          <div>
-            <h2 class="t-h2 measure-tight pricing__heading" data-reveal>
-              {fill(home.pricingHeading, tokens)}
-            </h2>
-            {home.pricingIntro && (
-              <p class="t-lede measure pricing__intro" data-reveal style="--reveal-delay:70ms">
-                {home.pricingIntro}
-              </p>
-            )}
-
-            <div class="options">
-              <article class="option option--buy" data-reveal>
-                <p class="t-label option__kicker">{home.buyTitle ?? 'Get the signed build'}</p>
-                <p class="option__price">{price ?? 'Paid'}</p>
-                <p class="t-prose option__body">{fill(home.buyBody, tokens)}</p>
-                {hasDownload ? (
-                  <div class="option__ctas">
-                    <a class="btn btn--accent" href={downloadUrl}>
-                      Buy for Mac{price && <span class="btn__price">{price}</span>}
-                    </a>
-                    {macAppStoreUrl && (
-                      <a class="btn btn--ghost" href={macAppStoreUrl}>
-                        Mac App Store{appStorePrice && <span class="btn__price btn__price--ghost">{appStorePrice}</span>}
-                      </a>
-                    )}
-                  </div>
-                ) : (
-                  <p class="option__soon t-small">
-                    <span class="option__soondot" aria-hidden="true" />
-                    On sale here soon
-                  </p>
-                )}
-              </article>
-
-              <article class="option option--build" data-reveal style="--reveal-delay:90ms">
-                <p class="t-label option__kicker">{home.buildTitle ?? 'Build it yourself'}</p>
-                <p class="option__price">Free</p>
-                <p class="t-prose option__body">{home.buildBody}</p>
-                {githubUrl && repoDir && (
-                  <pre class="option__code" aria-label="Commands to build kvidr yourself"><code><span class="option__line"><span class="option__prompt">$ </span>git clone {githubUrl}</span><span class="option__line"><span class="option__prompt">$ </span>open {repoDir}/Kvidr.xcodeproj</span></code></pre>
-                )}
-                {githubUrl && (
-                  <a class="btn btn--ghost option__cta" href={githubUrl} target="_blank" rel="noopener noreferrer">
-                    Read the source
-                  </a>
-                )}
-                <p class="t-label option__licence">MIT licence</p>
-              </article>
-            </div>
-
-            <a class="link-arrow pricing__more" href="/pricing" data-reveal>
-              Everything about pricing, including the iPhone app
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M5 12h13M12 5l7 7-7 7" />
-              </svg>
-            </a>
           </div>
         </div>
       </section>
@@ -445,14 +316,14 @@ const structuredDataJson = JSON.stringify(structuredData).replace(/</g, '\\u003c
   }
 
   <!-- ================= CTA ================= -->
-  <section class="section section--ruled cta">
+  <section class="section section--ruled cta" id="notify">
     <div class="shell cta__inner">
       <div>
         <div class="cta__icon" data-reveal>
           <AppIcon size={120} />
         </div>
         <h2 class="t-h2 measure-tight" data-reveal>
-          {home?.ctaHeading ?? 'Want to know when it runs?'}
+          {home?.ctaHeading ?? 'Get an email the day kvidr launches.'}
         </h2>
         {
           home?.ctaBody && (
@@ -464,7 +335,10 @@ const structuredDataJson = JSON.stringify(structuredData).replace(/</g, '\\u003c
       </div>
 
       <div class="cta__form" data-reveal style="--reveal-delay:140ms">
-        <SubscribeForm label={home?.ctaSubscribeLabel ?? 'Keep me posted'} />
+        <SubscribeForm
+          label={home?.ctaSubscribeLabel ?? 'Notify me at launch'}
+          note="Launch news only. Unsubscribe with one click."
+        />
       </div>
     </div>
   </section>
@@ -534,12 +408,6 @@ const structuredDataJson = JSON.stringify(structuredData).replace(/</g, '\\u003c
     box-shadow: 0 0 0 3px var(--teal-wash);
     flex: none;
     transform: translateY(-1px);
-  }
-
-  .hero__price {
-    margin-top: 1rem;
-    color: var(--ink-2);
-    max-width: 46ch;
   }
 
   .hero__devices {
@@ -859,156 +727,5 @@ const structuredDataJson = JSON.stringify(structuredData).replace(/</g, '\\u003c
   .ios__device {
     display: flex;
     justify-content: center;
-  }
-
-  /* ---- Price ---- */
-  .pricing__heading {
-    white-space: pre-line;
-  }
-
-  .pricing__intro {
-    margin-top: 1.5rem;
-  }
-
-  .options {
-    display: grid;
-    margin-top: clamp(2.5rem, 6vw, 4rem);
-    gap: 1px;
-    background: var(--rule);
-    border-block: 1px solid var(--rule);
-  }
-
-  @media (min-width: 48rem) {
-    .options {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  .option {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    background: var(--paper);
-    padding: clamp(1.75rem, 4vw, 2.75rem) clamp(1.25rem, 3vw, 2.5rem);
-  }
-
-  .option__kicker {
-    color: var(--teal);
-  }
-
-  .option--buy .option__kicker {
-    color: var(--accent);
-  }
-
-  .option__price {
-    margin-top: 0.9rem;
-    font-family: var(--font-display);
-    font-size: clamp(2.6rem, 1.6rem + 3vw, 4rem);
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: -0.045em;
-    /* Proportional figures: tabular ones give the decimal point a full digit
-       width, which at this size reads as "$2 . 99". */
-    font-variant-numeric: proportional-nums;
-  }
-
-  /* The paid option carries the logo's sky in its number. */
-  .option--buy .option__price {
-    background: linear-gradient(180deg, var(--sky-light) -20%, var(--accent) 70%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  .option__body {
-    margin-top: 1rem;
-    max-width: 40ch;
-    font-size: 1rem;
-  }
-
-  .option__cta {
-    margin-top: auto;
-  }
-
-  .option__body + .option__cta,
-  .option__body + .option__soon {
-    margin-top: 1.75rem;
-  }
-
-  .option__soon {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-    margin-top: 1.75rem;
-    color: var(--ink-2);
-  }
-
-  .option__soondot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-wash);
-  }
-
-  .option__code {
-    width: 100%;
-    margin: 1.5rem 0 1.25rem;
-    padding: 0.95rem 1.1rem;
-    border-radius: var(--radius-s);
-    border: 1px solid var(--rule);
-    background: var(--paper-2);
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    line-height: 1.7;
-    color: var(--ink);
-  }
-
-  /* A long clone URL wraps with a hanging indent instead of running out of
-     the box, so the command still reads as one line per step. */
-  .option__line {
-    display: block;
-    padding-left: 1.2em;
-    text-indent: -1.2em;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-  }
-
-  .option__prompt {
-    color: var(--ink-3);
-    user-select: none;
-  }
-
-  .option__licence {
-    margin-top: 1rem;
-    color: var(--ink-3);
-  }
-
-  :global(.btn__price) {
-    margin-left: 0.15rem;
-    padding: 0.1em 0.5em;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .ios__pulse::after {
-      animation: none;
-    }
-  }
-
-  .pricing__more {
-    margin-top: 1.75rem;
-  }
-
-  .option__ctas {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    margin-top: 1.75rem;
-  }
-
-  :global(.btn__price--ghost) {
-    background: var(--accent-wash);
   }
 </style>
