@@ -198,4 +198,17 @@ const isCurrent = (href: string) =>
       font-size: 0.8125rem;
     }
   }
+
+  /* Last in the file on purpose: it has to beat the 40rem rules above. The
+     logo is wider than it is tall, so on the narrowest phones win back a few
+     pixels to keep every link clear of the fade. */
+  @media (max-width: 26rem) {
+    .header__bar {
+      gap: 0.4rem;
+    }
+
+    .header__nav {
+      padding-right: 0.9rem;
+    }
+  }
 </style>

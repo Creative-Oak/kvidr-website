@@ -1,4 +1,5 @@
 ---
+import AppIcon from '../components/AppIcon.astro'
 import PageHeader from '../components/PageHeader.astro'
 import PortableText from '../components/PortableText.astro'
 import SanityImage from '../components/SanityImage.astro'
@@ -22,21 +23,26 @@ const {data: page} = await loadQuery<any>({query: aboutPageQuery})
         <PortableText value={page?.body} />
       </div>
 
-      {
-        page?.portrait?.asset && (
-          <aside class="about__aside" data-reveal style="--reveal-delay:100ms">
-            <SanityImage
-              image={page.portrait}
-              alt={page.portrait.alt ?? ''}
-              sizes="(max-width: 62rem) 60vw, 20rem"
-              class="about__portrait"
-            />
-            {page.portrait.caption && (
-              <p class="t-small about__caption">{page.portrait.caption}</p>
-            )}
-          </aside>
-        )
-      }
+      <aside class="about__aside" data-reveal style="--reveal-delay:100ms">
+        {
+          page?.portrait?.asset ? (
+            <>
+              <SanityImage
+                image={page.portrait}
+                alt={page.portrait.alt ?? ''}
+                sizes="(max-width: 62rem) 60vw, 20rem"
+                class="about__portrait"
+              />
+              {page.portrait.caption && (
+                <p class="t-small about__caption">{page.portrait.caption}</p>
+              )}
+            </>
+          ) : (
+            // Until there is a portrait, the aside carries the app icon.
+            <AppIcon size={176} decorative={false} class="about__icon" />
+          )
+        }
+      </aside>
     </div>
   </section>
 </Layout>
@@ -68,6 +74,16 @@ const {data: page} = await loadQuery<any>({query: aboutPageQuery})
     width: 100%;
     border-radius: var(--radius-m);
     border: 1px solid var(--rule);
+  }
+
+  .about__aside :global(.about__icon) {
+    margin-inline: auto;
+  }
+
+  @media (min-width: 62rem) {
+    .about__aside :global(.about__icon) {
+      margin-inline: 0;
+    }
   }
 
   .about__caption {

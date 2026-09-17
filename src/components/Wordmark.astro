@@ -10,17 +10,15 @@ const {markOnly = false, size = 26, class: className = ''} = Astro.props
 ---
 
 <span class={`wordmark ${className}`} style={`--mark-size:${size}px`}>
-  <span class="wordmark__mark" aria-hidden="true">
-    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- A chirp: three ascending strokes. "kvidr" is Danish for chirps. -->
-      <rect x="1" y="1" width="30" height="30" rx="9" class="mark__body" />
-      <g class="mark__bars" stroke-linecap="round" stroke-width="2.6">
-        <path d="M11 19.5v-3" />
-        <path d="M16 21.5v-9" />
-        <path d="M21 19.5v-6" />
-      </g>
-    </svg>
-  </span>
+  <!-- The logo: a bird in two speech bubbles. "kvidr" is Danish for chirps. -->
+  <img
+    class="wordmark__mark"
+    src="/brand/kvidr-mark.svg"
+    alt={markOnly ? 'kvidr' : ''}
+    width="1296"
+    height="1000"
+    decoding="async"
+  />
   {!markOnly && <span class="wordmark__word">kvidr</span>}
 </span>
 
@@ -28,7 +26,7 @@ const {markOnly = false, size = 26, class: className = ''} = Astro.props
   .wordmark {
     display: inline-flex;
     align-items: center;
-    gap: 0.46em;
+    gap: 0.36em;
     font-size: var(--mark-size);
     line-height: 1;
     color: var(--ink);
@@ -36,23 +34,13 @@ const {markOnly = false, size = 26, class: className = ''} = Astro.props
 
   .wordmark__mark {
     display: block;
-    width: 1.08em;
-    height: 1.08em;
+    /* The artwork is wider than tall; size it by height so it optically
+       matches the x-height-heavy lowercase word beside it. */
+    height: 1.18em;
+    width: auto;
     flex: none;
-  }
-
-  .wordmark__mark svg {
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-  }
-
-  .mark__body {
-    fill: var(--ink);
-  }
-
-  .mark__bars {
-    stroke: var(--paper);
+    transform-origin: 30% 80%;
+    transition: transform 0.5s var(--ease-out);
   }
 
   .wordmark__word {
@@ -64,21 +52,14 @@ const {markOnly = false, size = 26, class: className = ''} = Astro.props
     text-transform: lowercase;
   }
 
-  /* The middle bar grows a hair on hover — a small chirp. */
-  .mark__bars path {
-    transition: transform 0.4s var(--ease-out);
-    transform-origin: bottom;
+  /* A small chirp on hover. */
+  :global(a:hover) .wordmark__mark {
+    transform: rotate(-6deg) scale(1.04);
   }
 
-  a:hover .mark__bars path:nth-child(1) {
-    transform: scaleY(1.35);
-  }
-
-  a:hover .mark__bars path:nth-child(2) {
-    transform: scaleY(0.72);
-  }
-
-  a:hover .mark__bars path:nth-child(3) {
-    transform: scaleY(1.2);
+  @media (prefers-reduced-motion: reduce) {
+    .wordmark__mark {
+      transition: none;
+    }
   }
 </style>

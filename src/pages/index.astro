@@ -1,4 +1,5 @@
 ---
+import AppIcon from '../components/AppIcon.astro'
 import Glyph from '../components/Glyph.astro'
 import PortableText from '../components/PortableText.astro'
 import SectionLabel from '../components/SectionLabel.astro'
@@ -48,7 +49,7 @@ const hasDownload = Boolean(downloadUrl)
               ) : (
                 githubUrl && (
                   <a
-                    class="btn"
+                    class="btn btn--accent"
                     href={githubUrl}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -262,6 +263,9 @@ const hasDownload = Boolean(downloadUrl)
   <section class="section section--ruled cta">
     <div class="shell cta__inner">
       <div>
+        <div class="cta__icon" data-reveal>
+          <AppIcon size={120} />
+        </div>
         <h2 class="t-h2 measure-tight" data-reveal>
           {home?.ctaHeading ?? 'Want to know when it runs?'}
         </h2>
@@ -274,7 +278,7 @@ const hasDownload = Boolean(downloadUrl)
         }
       </div>
 
-      <div data-reveal style="--reveal-delay:140ms">
+      <div class="cta__form" data-reveal style="--reveal-delay:140ms">
         <SubscribeForm label={home?.ctaSubscribeLabel ?? 'Keep me posted'} />
       </div>
     </div>
@@ -339,7 +343,8 @@ const hasDownload = Boolean(downloadUrl)
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #61c455;
+    background: var(--teal-deep);
+    box-shadow: 0 0 0 3px var(--teal-wash);
     flex: none;
     transform: translateY(-1px);
   }
@@ -386,7 +391,7 @@ const hasDownload = Boolean(downloadUrl)
   }
 
   .quality__num {
-    color: var(--accent);
+    color: var(--teal);
     display: block;
     margin-bottom: 1rem;
   }
@@ -420,6 +425,11 @@ const hasDownload = Boolean(downloadUrl)
     background: var(--accent-wash);
     color: var(--accent);
     margin-bottom: 1rem;
+  }
+
+  .feature:nth-child(even) .feature__icon {
+    background: var(--teal-wash);
+    color: var(--teal);
   }
 
   .feature__title {
@@ -524,6 +534,34 @@ const hasDownload = Boolean(downloadUrl)
   @media (min-width: 62rem) {
     .cta__inner {
       grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .cta__icon {
+    margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
+    /* Drawn a touch past the column edge so the squircle's optical margin
+       lines up with the headline's cap height rather than its box. */
+    margin-left: -0.45rem;
+  }
+
+  .cta__icon :global(.app-icon) {
+    animation: cta-float 6s var(--ease) infinite alternate;
+  }
+
+  @keyframes cta-float {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-6px);
+    }
+  }
+
+  /* On wide screens, start the form level with the headline, not with the
+     icon above it. */
+  @media (min-width: 62rem) {
+    .cta__form {
+      padding-top: calc(120px + clamp(1.5rem, 3vw, 2.25rem) + 0.6rem);
     }
   }
 

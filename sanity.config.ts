@@ -1,4 +1,5 @@
 import {visionTool} from '@sanity/vision'
+import {createElement} from 'react'
 import {defineConfig} from 'sanity'
 import {presentationTool, defineLocations} from 'sanity/presentation'
 import {structureTool, type StructureBuilder, type StructureResolver} from 'sanity/structure'
@@ -36,6 +37,13 @@ const structure: StructureResolver = (S) =>
 export default defineConfig({
   name: 'kvidr',
   title: 'kvidr',
+  // The Studio lives on the same origin as the site, so it can use the mark.
+  icon: () =>
+    createElement('img', {
+      src: '/brand/kvidr-mark.svg',
+      alt: '',
+      style: {width: '100%', height: '100%', objectFit: 'contain'},
+    }),
   projectId,
   dataset,
   basePath: '/studio',

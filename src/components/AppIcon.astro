@@ -1,0 +1,46 @@
+---
+/**
+ * The macOS app icon, in its light or dark rendering to match the system
+ * appearance. Exports come from brand/source via scripts/brand.mjs.
+ */
+interface Props {
+  size?: number
+  class?: string
+  /** Decorative next to a visible name; otherwise it needs its own label. */
+  decorative?: boolean
+  loading?: 'lazy' | 'eager'
+}
+
+const {size = 112, class: className = '', decorative = true, loading = 'lazy'} = Astro.props
+---
+
+<picture class={`app-icon ${className}`} style={`--icon-size:${size}px`}>
+  <source srcset="/brand/app-icon-dark.webp" type="image/webp" media="(prefers-color-scheme: dark)" />
+  <source srcset="/brand/app-icon-dark.png" media="(prefers-color-scheme: dark)" />
+  <source srcset="/brand/app-icon-light.webp" type="image/webp" />
+  <img
+    src="/brand/app-icon-light.png"
+    alt={decorative ? '' : 'The kvidr app icon'}
+    width="512"
+    height="512"
+    loading={loading}
+    decoding="async"
+  />
+</picture>
+
+<style>
+  .app-icon {
+    display: block;
+    width: var(--icon-size);
+    height: var(--icon-size);
+    flex: none;
+  }
+
+  .app-icon img {
+    width: 100%;
+    height: 100%;
+    /* The export already carries its own squircle and shadow; add only the
+       soft lift a Dock icon has, tinted with the logo's sky. */
+    filter: drop-shadow(0 14px 22px rgba(22, 112, 196, 0.22));
+  }
+</style>

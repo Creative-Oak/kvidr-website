@@ -129,7 +129,7 @@ npx sanity cors add https://example.com --credentials
 | `npm run start` | Runs the built server (what the container does). |
 | `npm run check` | Astro + TypeScript diagnostics. |
 | `npm run verify:runtime` | Checks the built server only imports what the image ships. |
-| `node scripts/og.mjs` | Regenerates `public/og.png` and `public/apple-touch-icon.png`. |
+| `node scripts/brand.mjs` | Regenerates every web brand asset from `brand/source` — mark, favicons, app icons, social card. |
 | `SANITY_WRITE_TOKEN=… node scripts/seed.mjs` | Re-seeds the dataset. **Overwrites Studio edits** — for bootstrapping only. |
 
 ## How it is put together
@@ -145,6 +145,25 @@ src/
 │   └── schemaTypes/  Documents and objects.
 └── styles/global.css   Design tokens and primitives.
 ```
+
+### Brand and colour
+
+Design sources live in **`brand/source`** — `logo.svg` and the Icon Composer bundles and
+exports. They are deliberately *not* in `public/`: that folder is served to the world and
+baked into the image, and the sources are ~6 MB. `node scripts/brand.mjs` derives what the
+site actually uses into `public/brand/`, `public/favicon.svg`, `public/apple-touch-icon.png`
+and `public/og.png`. Change a source, rerun the script.
+
+The palette is taken from the logo's gradient stops — sky `#2292ec → #5ac7fc`, teal
+`#4ad2d0 → #1da7b8`, and the bird's pale `#c9e6fb`. Those raw values are only used
+decoratively (glows, the mock app, the icon), because the light ends are too pale to carry
+text. For text and buttons the sky is deepened to `--accent: #1670c4` and the teal to
+`--teal: #0f7382`, which both pass WCAG AA on the paper and under white text. In dark mode
+it flips: the logo's light ends are the legible ones, so they are used as-is.
+
+Sky is the primary voice (links, buttons, the outgoing bubble); teal is the second (numbers,
+alternating feature icons, the status dot) — the same way the teal bubble sits behind the
+blue one in the icon.
 
 ### Two things worth knowing before you edit
 

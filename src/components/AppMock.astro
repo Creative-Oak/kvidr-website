@@ -179,13 +179,13 @@ const conversations = [
   }
 
   .mock__row.is-selected {
-    background: var(--accent);
-    color: var(--accent-ink);
+    background: linear-gradient(180deg, #2a95ee, #1a7fd6);
+    color: #ffffff;
   }
 
   .mock__row.is-selected .mock__time,
   .mock__row.is-selected .mock__snippet {
-    color: color-mix(in srgb, var(--accent-ink) 78%, transparent);
+    color: rgba(255, 255, 255, 0.82);
   }
 
   .mock__avatar,
@@ -201,12 +201,13 @@ const conversations = [
     color: #fff;
   }
 
-  /* Muted, desaturated avatar colours — not a crayon box. */
-  .mock__avatar--0 { background: #6b7fa8; }
-  .mock__avatar--1 { background: #8a7f6e; }
-  .mock__avatar--2 { background: #6f8a7c; }
-  .mock__avatar--3 { background: #8a6f78; }
-  .mock__avatar--4 { background: #7a7391; }
+  /* Avatars drawn from the icon's own sky and teal, varied in depth rather
+     than hue so the sidebar stays calm. */
+  .mock__avatar--0 { background: linear-gradient(180deg, #5ac7fc, #2292ec); }
+  .mock__avatar--1 { background: linear-gradient(180deg, #4ad2d0, #1da7b8); }
+  .mock__avatar--2 { background: linear-gradient(180deg, #4f8fc7, #2d6aa3); }
+  .mock__avatar--3 { background: linear-gradient(180deg, #5fb6c4, #2f8795); }
+  .mock__avatar--4 { background: linear-gradient(180deg, #7aa9d6, #4a7fb2); }
 
   .mock__rowtext {
     display: flex;
@@ -243,6 +244,7 @@ const conversations = [
   }
 
   .mock__badge {
+    /* Sits on the selected (sky) row, so it takes the sky as its text. */
     flex: none;
     min-width: 1.15rem;
     height: 1.15rem;
@@ -250,8 +252,8 @@ const conversations = [
     display: grid;
     place-items: center;
     border-radius: 999px;
-    background: var(--paper-raised);
-    color: var(--accent);
+    background: #ffffff;
+    color: #1670c4;
     font-size: 0.6875rem;
     font-weight: 650;
   }
@@ -338,9 +340,10 @@ const conversations = [
     max-width: 30ch;
   }
 
+  /* The outgoing bubble is the logo's own bubble. */
   .mock__bubble--out {
-    background: var(--accent);
-    color: var(--accent-ink);
+    background: linear-gradient(180deg, #3aa9f4, #1f86e0);
+    color: #ffffff;
   }
 
   .mock__receipt {
@@ -406,8 +409,8 @@ const conversations = [
     width: 1.55rem;
     height: 1.55rem;
     border-radius: 50%;
-    background: var(--accent);
-    color: var(--accent-ink);
+    background: linear-gradient(180deg, #3aa9f4, #1f86e0);
+    color: #ffffff;
     flex: none;
   }
 
