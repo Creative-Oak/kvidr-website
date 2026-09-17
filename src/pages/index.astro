@@ -11,7 +11,7 @@ import Layout from '../layouts/Layout.astro'
 import {loadQuery} from '../sanity/lib/load-query'
 import {homePageQuery, siteSettingsQuery} from '../sanity/lib/queries'
 import {clean} from '../sanity/lib/stega'
-import {formatPrice, withPrice} from '../lib/price'
+import {fill, fillBlocks, priceTokens} from '../lib/price'
 
 const [{data: home}, {data: settings}] = await Promise.all([
   loadQuery<any>({query: homePageQuery}),
@@ -23,7 +23,9 @@ const downloadUrl = clean(settings?.downloadUrl)
 const githubUrl = clean(settings?.githubUrl)
 const iosAppStoreUrl = clean(settings?.iosAppStoreUrl)
 const hasDownload = Boolean(downloadUrl)
-const price = formatPrice(settings)
+const tokens = priceTokens(settings)
+const {price, appStorePrice} = tokens
+const macAppStoreUrl = clean(settings?.macAppStoreUrl)
 
 // "https://github.com/owner/repo" → "repo", for the clone snippet.
 const repoDir = githubUrl?.replace(/\/+$/, '').split('/').pop()
@@ -58,17 +60,25 @@ const structuredData = {
   license: 'https://opensource.org/license/mit',
   url: new URL('/', Astro.site ?? Astro.url).toString(),
   ...(githubUrl ? {sameAs: [githubUrl]} : {}),
-  ...(typeof settings?.priceAmount === 'number'
-    ? {
-        offers: {
-          '@type': 'Offer',
-          price: settings.priceAmount.toFixed(2),
-          priceCurrency: clean(settings?.priceCurrency) || 'USD',
-          ...(downloadUrl ? {url: downloadUrl} : {}),
-        },
-      }
-    : {}),
+  // One offer per way to buy the Mac app.
+  offers: [
+    typeof settings?.priceAmount === 'number' && {
+      '@type': 'Offer',
+      name: 'Mac app with a licence code',
+      price: settings.priceAmount.toFixed(2),
+      priceCurrency: clean(settings?.priceCurrency) || 'USD',
+      ...(downloadUrl ? {url: downloadUrl} : {}),
+    },
+    typeof settings?.appStorePriceAmount === 'number' && {
+      '@type': 'Offer',
+      name: 'Mac App Store',
+      price: settings.appStorePriceAmount.toFixed(2),
+      priceCurrency: clean(settings?.priceCurrency) || 'USD',
+      ...(macAppStoreUrl ? {url: macAppStoreUrl} : {}),
+    },
+  ].filter(Boolean),
 }
+if (structuredData.offers.length === 0) delete (structuredData as any).offers
 // Escape "<" so nothing in the CMS can close the script element early.
 const structuredDataJson = JSON.stringify(structuredData).replace(/</g, '\\u003c')
 ---
@@ -129,7 +139,7 @@ const structuredDataJson = JSON.stringify(structuredData).replace(/</g, '\\u003c
 
           {
             home?.heroPriceNote && (
-              <p class="t-small hero__price">{withPrice(home.heroPriceNote, price)}</p>
+              <p class="t-small hero__price">{fill(home.heroPriceNote, tokens)}</p>
             )
           }
 
@@ -300,7 +310,7 @@ const structuredDataJson = JSON.stringify(structuredData).replace(/</g, '\\u003c
                 {home.iosHeading}
               </h2>
               <div data-reveal style="--reveal-delay:100ms">
-                <PortableText value={home.iosBody} class="ios__body" />
+                <PortableText value={fillBlocks(home.iosBody, tokens)} class="ios__body" />
               </div>
               {iosAppStoreUrl && (
                 <a class="btn btn--accent ios__cta" href={iosAppStoreUrl} data-reveal>
@@ -345,7 +355,7 @@ const structuredDataJson = JSON.stringify(structuredData).replace(/</g, '\\u003c
 
           <div>
             <h2 class="t-h2 measure-tight pricing__heading" data-reveal>
-              {withPrice(home.pricingHeading, price)}
+              {fill(home.pricingHeading, tokens)}
             </h2>
             {home.pricingIntro && (
               <p class="t-lede measure pricing__intro" data-reveal style="--reveal-delay:70ms">
@@ -357,15 +367,22 @@ const structuredDataJson = JSON.stringify(structuredData).replace(/</g, '\\u003c
               <article class="option option--buy" data-reveal>
                 <p class="t-label option__kicker">{home.buyTitle ?? 'Get the signed build'}</p>
                 <p class="option__price">{price ?? 'Paid'}</p>
-                <p class="t-prose option__body">{withPrice(home.buyBody, price)}</p>
+                <p class="t-prose option__body">{fill(home.buyBody, tokens)}</p>
                 {hasDownload ? (
-                  <a class="btn btn--accent option__cta" href={downloadUrl}>
-                    Buy for Mac{price && <span class="btn__price">{price}</span>}
-                  </a>
+                  <div class="option__ctas">
+                    <a class="btn btn--accent" href={downloadUrl}>
+                      Buy for Mac{price && <span class="btn__price">{price}</span>}
+                    </a>
+                    {macAppStoreUrl && (
+                      <a class="btn btn--ghost" href={macAppStoreUrl}>
+                        Mac App Store{appStorePrice && <span class="btn__price btn__price--ghost">{appStorePrice}</span>}
+                      </a>
+                    )}
+                  </div>
                 ) : (
                   <p class="option__soon t-small">
                     <span class="option__soondot" aria-hidden="true" />
-                    The signed build is on its way
+                    On sale here soon
                   </p>
                 )}
               </article>
@@ -982,5 +999,16 @@ const structuredDataJson = JSON.stringify(structuredData).replace(/</g, '\\u003c
 
   .pricing__more {
     margin-top: 1.75rem;
+  }
+
+  .option__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.75rem;
+  }
+
+  :global(.btn__price--ghost) {
+    background: var(--accent-wash);
   }
 </style>

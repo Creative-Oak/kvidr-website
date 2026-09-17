@@ -25,12 +25,30 @@ export const siteSettings = defineType({
     }),
     defineField({
       name: 'priceAmount',
-      title: 'Price of the signed build',
+      title: 'Mac price — bought here',
       type: 'number',
       group: 'general',
       initialValue: 2.99,
       description:
-        'Shown wherever the site talks about buying. Write {price} in copy to insert it, formatted.',
+        'The direct price, with a licence code. Write {price} in copy to insert it, formatted.',
+      validation: (Rule) => Rule.min(0).precision(2),
+    }),
+    defineField({
+      name: 'licenceSeats',
+      title: 'Macs per licence code',
+      type: 'number',
+      group: 'general',
+      initialValue: 5,
+      description: 'Write {seats} in copy to insert it.',
+      validation: (Rule) => Rule.integer().min(1),
+    }),
+    defineField({
+      name: 'appStorePriceAmount',
+      title: 'Mac price — Mac App Store',
+      type: 'number',
+      group: 'general',
+      initialValue: 3.99,
+      description: 'Write {appStorePrice} in copy to insert it, formatted.',
       validation: (Rule) => Rule.min(0).precision(2),
     }),
     defineField({
@@ -50,11 +68,18 @@ export const siteSettings = defineType({
     }),
     defineField({
       name: 'downloadUrl',
-      title: 'Mac purchase URL',
+      title: 'Mac purchase URL — bought here',
       type: 'url',
       group: 'general',
       description:
-        'Where people buy the signed Mac build. Leave empty until it exists: while empty, the site says the signed build is coming instead of showing a dead button.',
+        'The checkout for the direct, licence-code version. Leave empty until it exists: while empty, the site says the app is on its way instead of showing a dead button.',
+    }),
+    defineField({
+      name: 'macAppStoreUrl',
+      title: 'Mac App Store URL',
+      type: 'url',
+      group: 'general',
+      description: 'Leave empty until the listing is live.',
     }),
     defineField({
       name: 'iosAppStoreUrl',

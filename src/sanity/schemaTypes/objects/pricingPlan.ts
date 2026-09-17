@@ -24,10 +24,11 @@ export const pricingPlan = defineType({
       title: 'Price',
       type: 'string',
       description:
-        '"Signed build price" uses the price in Site settings, so it can never disagree with the rest of the site.',
+        'Prices come from Site settings, so this page can never disagree with the rest of the site.',
       options: {
         list: [
-          {title: 'Signed build price (from Site settings)', value: 'signed'},
+          {title: 'Mac price, bought here (from Site settings)', value: 'signed'},
+          {title: 'Mac App Store price (from Site settings)', value: 'appstore'},
           {title: 'Free', value: 'free'},
           {title: 'To be announced', value: 'tba'},
         ],
@@ -40,7 +41,7 @@ export const pricingPlan = defineType({
       name: 'priceNote',
       title: 'Under the price',
       type: 'string',
-      description: 'A few words, e.g. "under the MIT licence".',
+      description: 'A few words, e.g. "under the MIT licence". Tokens work here: {price}, {appStorePrice}, {seats}.',
     }),
     defineField({
       name: 'status',
@@ -51,7 +52,7 @@ export const pricingPlan = defineType({
       name: 'body',
       type: 'text',
       rows: 3,
-      description: 'Write {price} to insert the price.',
+      description: 'Tokens: {price}, {appStorePrice}, {seats}.',
     }),
     defineField({
       name: 'includes',
@@ -65,9 +66,10 @@ export const pricingPlan = defineType({
       description: 'What the button does. Buy and App Store links come from Site settings.',
       options: {
         list: [
-          {title: 'Buy the signed Mac build', value: 'buy'},
+          {title: 'Buy the Mac app here', value: 'buy'},
+          {title: 'Mac App Store', value: 'macappstore'},
           {title: 'Read the source', value: 'source'},
-          {title: 'App Store (or the mailing list until it is live)', value: 'appstore'},
+          {title: 'iPhone App Store (or the mailing list until it is live)', value: 'appstore'},
           {title: 'No button', value: 'none'},
         ],
       },

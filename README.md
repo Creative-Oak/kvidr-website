@@ -55,116 +55,34 @@ Upload real screenshots in the Studio and the stand-in disappears on its own.
 
 ### Price, purchase and the iPhone app
 
-The price lives once, in **Site settings → Price of the signed build** (and currency). Copy
-anywhere on the home page can write `{price}` and it is inserted, formatted — so changing the
-price is one edit, not a hunt through headings.
+The Mac app is sold two ways, and both prices live once, in **Site settings**:
 
-**Site settings → Mac purchase URL** is intentionally empty. While it is empty, the hero's
-primary button reads "Read the source", and the Price section says the signed build is on its
-way. Fill it in and both become "Buy for Mac" with the price on the button.
+| Setting | Current | Token in copy |
+| --- | --- | --- |
+| Mac price — bought here (licence code) | $2.99 | `{price}` |
+| Macs per licence code | 5 | `{seats}` |
+| Mac price — Mac App Store | $3.99 | `{appStorePrice}` |
 
-**Site settings → iPhone App Store URL** works the same way: while empty, the iPhone section
-shows its status ("In development"); once set, the status disappears and a "View on the App
-Store" button appears. Upload a portrait screenshot to replace the drawn iPhone.
+Copy on the home and pricing pages — including rich text such as FAQ answers — can write those
+tokens and gets the formatted value. Change a price once and every page follows.
 
-The home page also emits `SoftwareApplication` structured data with the price and the MIT
-licence, so search results can show both.
+The purchase links are intentionally empty until they exist:
+
+- **Mac purchase URL — bought here**: while empty, the hero says "Read the source" and the buy
+  options say "On sale here soon". Once set, they become "Buy for Mac $2.99".
+- **Mac App Store URL**: while empty, "Coming to the Mac App Store". Once set, a "Mac App
+  Store $3.99" button appears beside the direct one.
+- **iPhone App Store URL**: while empty, the iPhone section and plan show "In development" and
+  point at the mailing list. Once set, they show "View on the App Store".
+
+The iPhone app is a separate purchase; nothing on the site implies the Mac purchase covers it.
+The home page emits `SoftwareApplication` structured data with one offer per way to buy.
 
 **`/pricing`** is its own page, edited in **Pricing page**. Each plan picks a platform, a price
-type — *signed build price* (read from Site settings, so it cannot disagree with the rest of
-the site), *free*, or *to be announced* — and an action: buy, read the source, or App Store.
-The App Store action falls back to the mailing list on the same page until the iPhone URL is
-set. Its questions render as native `<details>` and are also emitted as `FAQPage` structured
-data.
-
-## Deploying to Coolify
-
-Build pack: **Dockerfile**. Port **4321**.
-
-Set these as *both* build and runtime variables, because Astro inlines them at build time:
-
-```
-PUBLIC_SANITY_PROJECT_ID=9c35nr1d
-PUBLIC_SANITY_DATASET=production
-PUBLIC_SITE_URL=https://kvidr.app
-PUBLIC_SANITY_VISUAL_EDITING_ENABLED=false
-```
-
-Set these as **runtime only** — never as build args, or they end up in image layers:
-
-```
-SANITY_API_READ_TOKEN=…      # only if you turn visual editing on in production
-RESEND_API_KEY=…
-RESEND_AUDIENCE_ID=…
-RESEND_FROM_EMAIL=kvidr <hello@kvidr.app>
-CONTACT_TO_EMAIL=…
-```
-
-The container runs as a non-root user and has a healthcheck on `/robots.txt` — chosen so a
-Sanity outage does not restart the container.
-
-### Why the image is small
-
-The server is built with `ssr.noExternal`, so its dependencies are inlined into `dist/`
-rather than left as bare imports. That matters more than it sounds: only about twenty
-packages are reachable from the server, but a plain `npm ci --omit=dev` installs the whole
-declared tree — including `sanity`, `@sentry`, `hls.js` and friends, which are **client-side
-only** and already compiled into `dist/client`. That was 620 MB of `node_modules` to serve a
-landing page.
-
-Bundled, the only package that refuses to inline is `picomatch`, so the runtime stage copies
-that one directory and nothing else: **116 KB of `node_modules`, 245 MB total**, of which
-227 MB is the `node:22-alpine` base.
-
-Two things hold this together, and both matter if you change dependencies:
-
-- `npm run build` also runs `scripts/check-runtime-externals.mjs`, which **fails the build**
-  if anything new escapes the bundle. Without it, a new dependency would sail through CI and
-  then crash the container on boot with a module-not-found. If it fires, add the package to
-  `ALLOWED` in that script *and* to the Dockerfile runtime stage.
-- Bundling is applied by an integration that only runs on `command === 'build'`. Do not move
-  it into `vite.ssr` directly: in dev, Vite pushes CommonJS packages such as React through its
-  SSR transform and the dev server will not boot.
-
-Astro's image optimiser is switched to `passthroughImageService()`, because every image here
-is resized by Sanity's CDN. That keeps `sharp` and its ~27 MB of platform binaries out of the
-runtime entirely.
-
-### CORS
-
-`https://kvidr.app` and `https://www.kvidr.app` are already allowed on the Sanity project.
-Add any other origin that needs to host the Studio with:
-
-```bash
-npx sanity cors add https://example.com --credentials
-```
-
-## Scripts
-
-| Command | What it does |
-| --- | --- |
-| `npm run dev` | Dev server with live preview. |
-| `npm run build` | Production build into `dist/`, then verifies runtime externals. |
-| `npm run start` | Runs the built server (what the container does). |
-| `npm run check` | Astro + TypeScript diagnostics. |
-| `npm run verify:runtime` | Checks the built server only imports what the image ships. |
-| `node scripts/brand.mjs` | Regenerates every web brand asset from `brand/source` — mark, favicons, app icons, social card. |
-| `SANITY_WRITE_TOKEN=… node scripts/seed.mjs` | Seeds an empty dataset from `scripts/content.mjs`. **Overwrites Studio edits** — for bootstrapping only. |
-| `SANITY_WRITE_TOKEN=… node scripts/migrations/<name>.mjs --dry-run` | Patches specific fields in an existing dataset. Refuses to touch edited documents or drafts. |
-
-## How it is put together
-
-```
-src/
-├── components/     UI. WindowFrame + AppMock draw the macOS window and its stand-in.
-├── layouts/        Layout.astro — head, fonts, header/footer, reveal motion, visual editing.
-├── lib/            Framework-free helpers (shortcut parsing, rate limiting).
-├── pages/          Routes, plus /api/subscribe and /api/contact.
-├── sanity/
-│   ├── lib/        loadQuery (drafts + stega), GROQ queries, image URLs, stega cleaning.
-│   └── schemaTypes/  Documents and objects.
-└── styles/global.css   Design tokens and primitives.
-```
+type (direct, Mac App Store, free, or to be announced — the prices themselves always come from
+Site settings) and an action. It also carries a plain-language MIT summary, the refund policy
+at **`/pricing#refunds`** — use that URL where a payment provider asks for a refund policy — and
+questions rendered as native `<details>` and emitted as `FAQPage` structured data.
 
 ### Brand and colour
 

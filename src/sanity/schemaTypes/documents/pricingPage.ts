@@ -8,6 +8,7 @@ export const pricingPage = defineType({
     {name: 'intro', title: 'Intro', default: true},
     {name: 'plans', title: 'Plans'},
     {name: 'licence', title: 'Licence'},
+    {name: 'refunds', title: 'Refunds'},
     {name: 'faq', title: 'Questions'},
     {name: 'cta', title: 'Call to action'},
     {name: 'seo', title: 'SEO'},
@@ -26,7 +27,7 @@ export const pricingPage = defineType({
       type: 'text',
       rows: 3,
       group: 'intro',
-      description: 'Write {price} to insert the price.',
+      description: 'Tokens: {price}, {appStorePrice}, {seats}.',
     }),
     defineField({
       name: 'plans',
@@ -44,6 +45,14 @@ export const pricingPage = defineType({
     }),
     defineField({name: 'licenceHeading', title: 'Heading', type: 'string', group: 'licence'}),
     defineField({name: 'licenceBody', title: 'Body', type: 'richText', group: 'licence'}),
+    defineField({name: 'refundsHeading', title: 'Heading', type: 'string', group: 'refunds'}),
+    defineField({
+      name: 'refundsBody',
+      title: 'Body',
+      type: 'richText',
+      group: 'refunds',
+      description: 'Linkable as /pricing#refunds — use that as the refund policy URL with a payment provider.',
+    }),
     defineField({name: 'faqHeading', title: 'Heading', type: 'string', group: 'faq'}),
     defineField({
       name: 'faq',

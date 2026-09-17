@@ -54,6 +54,8 @@ const siteSettings = {
   tagline: 'Native Nextcloud Talk for Mac and iPhone. Open source, MIT licensed.',
   githubUrl: GITHUB,
   priceAmount: 2.99,
+  appStorePriceAmount: 3.99,
+  licenceSeats: 5,
   priceCurrency: 'USD',
   contactEmail: 'hello@kvidr.app',
   // Changelog lives in the footer: five links do not fit a phone's header.
@@ -88,7 +90,7 @@ const homePage = {
   eyebrow: 'Native Nextcloud Talk · Mac first, iPhone next',
   headline: 'Nextcloud Talk,\nnative on Mac\nand iPhone.',
   lede: 'Swift and SwiftUI, on each platform’s own terms. No Electron. No web view rendering your messages. Your conversations are on screen before the first network call returns.',
-  heroPriceNote: 'Open source under MIT. {price} for the signed build — or build it yourself, free.',
+  heroPriceNote: 'Open source under MIT. The Mac app is from {price}, with updates included — or build it yourself, free.',
   statusNote: 'v1.0 — chat, complete. Calls are deliberately out of scope.',
 
   problemHeading: 'A good protocol, wearing a browser.',
@@ -222,7 +224,7 @@ const homePage = {
       'The Mac app already keeps everything below the interface in its own Swift package, with no SwiftUI in it. That is what makes an iPhone app a second interface rather than a second app.',
     ),
     block(
-      'It is not ready, and there is no date yet. Join the list at the bottom of this page and you will hear when it is.',
+      'It is not ready, and there is no date yet. It will be its own purchase — buying the Mac app does not include it. Join the list at the bottom of this page to hear when it is ready.',
     ),
   ],
 
@@ -245,10 +247,10 @@ const homePage = {
 
   pricingHeading: 'Free to read. Free to build.\n{price} to skip the build.',
   pricingIntro:
-    'kvidr is MIT licensed, all of it. Paying buys convenience, not features: the app you buy and the app you compile from the repository are the same app.',
-  buyTitle: 'Get the signed build',
+    'kvidr is MIT licensed, all of it. Paying buys convenience, not features: the app you buy and the app you compile are the same app, and future updates are included.',
+  buyTitle: 'Buy the Mac app',
   buyBody:
-    'Signed and ready to run, with no Xcode and no developer account needed. {price} is a small, honest way to keep the work going.',
+    '{price} here, with a licence code for up to {seats} Macs — or {appStorePrice} on the Mac App Store. Signed and ready to run, with future updates included.',
   buildTitle: 'Build it yourself',
   buildBody:
     'Clone the repository, open it in Xcode 26 and sign it with your own Apple developer account. Everything you need is in the README, and nothing is held back.',
@@ -274,8 +276,8 @@ const homePage = {
     },
     {
       _type: 'qualityItem',
-      title: 'The signed build, or Xcode 26',
-      body: 'Buy the signed build, or compile it yourself in Xcode 26 and sign it with your own Apple developer account. Same app either way.',
+      title: 'The Mac app, or Xcode 26',
+      body: 'Buy it here or on the Mac App Store, or compile it yourself in Xcode 26 and sign it with your own Apple developer account. Same app either way.',
     },
     {
       _type: 'qualityItem',
@@ -329,7 +331,7 @@ const aboutPage = {
       `Everything is [open on GitHub](${GITHUB}) under the MIT licence — the app, the architecture notes, the API audit and the implementation plan. Anyone with a Mac and an Apple developer account can build kvidr, sign it and run it without paying anything.`,
     ),
     block(
-      'The signed build is for everyone who would rather press a button than open Xcode, and it costs a small price. That is the entire business model: convenience for a little money, with no features held back from people who build it themselves.',
+      'The signed app is for everyone who would rather press a button than open Xcode. It costs a small price — on this site, or a little more on the Mac App Store — and future updates are included. That is the entire business model: convenience for a little money, with no features held back from people who build it themselves.',
     ),
     block('What is next', 'h2'),
     block(
@@ -348,21 +350,35 @@ const pricingPage = {
   _type: 'pricingPage',
   eyebrow: 'Pricing',
   headline: 'Open source.\nFairly priced.',
-  lede: 'Every line of kvidr is MIT licensed and free to build. The price is for not having to — and it pays for the work.',
+  lede: 'Every line of kvidr is MIT licensed and free to build. Buying it is for not having to — updates included, and it pays for the work.',
   plans: keyed([
     {
       _type: 'pricingPlan',
       platform: 'mac',
-      title: 'Signed build',
+      title: 'Buy it here',
       priceType: 'signed',
-      priceNote: 'for the signed Mac build',
-      body: 'Download it and run it. No Xcode, no developer account, no build step.',
+      priceNote: 'licence code for up to {seats} Macs',
+      body: 'Buy it on this site, download the signed app and activate it with your licence code. It costs less here, because there is no store in the middle.',
       includes: [
-        'The whole app — nothing held back',
-        'Signed, so macOS opens it like any other app',
-        'Pays for continued work on kvidr',
+        'Activate on up to {seats} Macs',
+        'Future updates included',
+        'Refunds, no reason needed',
       ],
       action: 'buy',
+    },
+    {
+      _type: 'pricingPlan',
+      platform: 'mac',
+      title: 'Mac App Store',
+      priceType: 'appstore',
+      priceNote: 'through your Apple Account',
+      body: 'The same app, bought, installed and updated through the Mac App Store.',
+      includes: [
+        'Future updates included',
+        'Installs and updates through the App Store',
+        'Refunds handled by Apple',
+      ],
+      action: 'macappstore',
     },
     {
       _type: 'pricingPlan',
@@ -372,7 +388,7 @@ const pricingPage = {
       priceNote: 'under the MIT licence',
       body: 'Clone the repository, open it in Xcode 26 and sign it with your own Apple developer account.',
       includes: [
-        'The same app as the signed build',
+        'The same app you can buy',
         'Every line of source, plus the architecture notes',
         'Yours to read, change and share under MIT',
       ],
@@ -383,9 +399,9 @@ const pricingPage = {
       platform: 'iphone',
       title: 'iPhone app',
       priceType: 'tba',
-      priceNote: 'price announced when it ships',
+      priceNote: 'sold separately',
       status: 'In development',
-      body: 'An iPhone app is being built on the same foundations as the Mac app. Its price will be set when it is ready, not before.',
+      body: 'Built on the same foundations as the Mac app. It will be its own app and its own purchase: buying the Mac app does not include it.',
       includes: [
         'Swift and SwiftUI, with no web view',
         'Talks directly to your Nextcloud server',
@@ -395,7 +411,7 @@ const pricingPage = {
     },
   ]),
   sameAppNote:
-    'The signed build and the one you compile yourself are the same app, built from the same source. Paying buys the build, not features.',
+    'Every version is the same app, built from the same source, and every purchase includes future updates. Paying buys the build, not features.',
 
   licenceHeading: 'What MIT means here',
   licenceBody: [
@@ -404,6 +420,16 @@ const pricingPage = {
     bullet('The one condition: keep the copyright and licence notice with any copy or substantial part of it.'),
     bullet('It comes with no warranty of any kind.'),
     block(`That is a summary, not the licence. [Read the licence itself](${GITHUB}/blob/main/LICENSE) on GitHub.`),
+  ],
+
+  refundsHeading: 'Refunds',
+  refundsBody: [
+    block(
+      'If kvidr is not right for you, you can have your money back. [Get in touch](/contact), say which purchase it was, and it will be refunded — no forms, and no reason needed.',
+    ),
+    block(
+      'Mac App Store purchases are paid to Apple, so Apple handles those refunds. You can request one at [reportaproblem.apple.com](https://reportaproblem.apple.com).',
+    ),
   ],
 
   faqHeading: 'Questions',
@@ -419,10 +445,42 @@ const pricingPage = {
     },
     {
       _type: 'faqItem',
-      question: 'Is the paid build different from the one I can compile?',
+      question: 'Why is it cheaper here than on the Mac App Store?',
       answer: [
         block(
-          'No. It is the same app, built from the same source. You are paying for the build and the signing, and for not having to open Xcode — not for features.',
+          'Buying here skips the store in the middle, so it costs less: {price} instead of {appStorePrice}. It is the same app either way, and both include future updates.',
+        ),
+      ],
+    },
+    {
+      _type: 'faqItem',
+      question: 'Is the paid app different from the one I can compile?',
+      answer: [
+        block(
+          'No. It is the same app, built from the same source. You are paying for the build, the signing and not having to open Xcode — not for features.',
+        ),
+      ],
+    },
+    {
+      _type: 'faqItem',
+      question: 'Are future updates included?',
+      answer: [block('Yes — whether you bought kvidr here or on the Mac App Store.')],
+    },
+    {
+      _type: 'faqItem',
+      question: 'How many Macs can I use it on?',
+      answer: [
+        block(
+          'A licence code bought here activates kvidr on up to {seats} Macs. Bought on the Mac App Store, it installs on the Macs signed in to your Apple Account.',
+        ),
+      ],
+    },
+    {
+      _type: 'faqItem',
+      question: 'Can I get a refund?',
+      answer: [
+        block(
+          'Yes. If kvidr is not right for you, ask and you will get your money back — no reason needed. [See refunds](/pricing#refunds) for how, including for Mac App Store purchases.',
         ),
       ],
     },
@@ -437,10 +495,10 @@ const pricingPage = {
     },
     {
       _type: 'faqItem',
-      question: 'How much will the iPhone app cost?',
+      question: 'Does buying the Mac app include the iPhone app?',
       answer: [
         block(
-          'That has not been decided. The price will be announced when the app is ready. Join the list below to hear about it.',
+          'No. The iPhone app will be a separate app and a separate purchase. Its price has not been decided and will be announced when it is ready — join the list below to hear about it.',
         ),
       ],
     },
@@ -466,12 +524,12 @@ const pricingPage = {
 
   ctaHeading: 'Hear when it is ready',
   ctaBody:
-    'One email when the signed Mac build is available, and one when the iPhone app is. Nothing else.',
+    'One email when the Mac app is on sale, and one when the iPhone app is. Nothing else.',
 
   seo: {
     _type: 'seo',
     description:
-      'kvidr is MIT licensed and free to build. The signed Mac build is {price}; the iPhone app’s price will be announced when it ships.',
+      'kvidr is MIT licensed and free to build. The Mac app is {price} here or {appStorePrice} on the Mac App Store, with future updates included. The iPhone app is sold separately.',
   },
 }
 

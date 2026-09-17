@@ -5,7 +5,7 @@ import PageHeader from '../components/PageHeader.astro'
 import PortableText from '../components/PortableText.astro'
 import SubscribeForm from '../components/SubscribeForm.astro'
 import Layout from '../layouts/Layout.astro'
-import {formatPrice, withPrice} from '../lib/price'
+import {fill, fillBlocks, priceTokens} from '../lib/price'
 import {loadQuery} from '../sanity/lib/load-query'
 import {pricingPageQuery, siteSettingsQuery} from '../sanity/lib/queries'
 import {clean} from '../sanity/lib/stega'
@@ -15,8 +15,10 @@ const [{data: page}, {data: settings}] = await Promise.all([
   loadQuery<any>({query: siteSettingsQuery}),
 ])
 
-const price = formatPrice(settings)
+const tokens = priceTokens(settings)
+const {price, appStorePrice} = tokens
 const downloadUrl = clean(settings?.downloadUrl)
+const macAppStoreUrl = clean(settings?.macAppStoreUrl)
 const iosAppStoreUrl = clean(settings?.iosAppStoreUrl)
 const githubUrl = clean(settings?.githubUrl)
 const repoDir = githubUrl?.replace(/\/+$/, '').split('/').pop()
@@ -27,6 +29,8 @@ const priceFor = (plan: any) => {
   switch (clean(plan.priceType)) {
     case 'signed':
       return price ?? 'Paid'
+    case 'appstore':
+      return appStorePrice ?? 'Paid'
     case 'free':
       return 'Free'
     default:
@@ -43,15 +47,21 @@ const plainText = (blocks: any[] = []) =>
       .join('\n\n'),
   )
 
+const faq = (page?.faq ?? []).map((item: any) => ({
+  ...item,
+  question: fill(item.question, tokens),
+  answer: fillBlocks(item.answer, tokens),
+}))
+
 const faqStructuredData =
-  page?.faq?.length > 0
+  faq.length > 0
     ? JSON.stringify({
         '@context': 'https://schema.org',
         '@type': 'FAQPage',
-        mainEntity: page.faq.map((item: any) => ({
+        mainEntity: faq.map((item: any) => ({
           '@type': 'Question',
-          name: clean(withPrice(item.question, price)),
-          acceptedAnswer: {'@type': 'Answer', text: withPrice(plainText(item.answer), price)},
+          name: clean(item.question),
+          acceptedAnswer: {'@type': 'Answer', text: plainText(item.answer)},
         })),
       }).replace(/</g, '\\u003c')
     : null
@@ -59,13 +69,13 @@ const faqStructuredData =
 
 <Layout
   title="Pricing"
-  description={page?.seo?.description ? withPrice(page.seo.description, price) : undefined}
+  description={page?.seo?.description ? fill(page.seo.description, tokens) : undefined}
   image={page?.seo?.image}
 >
   <PageHeader
     eyebrow={page?.eyebrow ?? 'Pricing'}
     headline={page?.headline ?? 'Pricing'}
-    lede={withPrice(page?.lede, price)}
+    lede={fill(page?.lede, tokens)}
   />
 
   <!-- ================= Plans ================= -->
@@ -95,16 +105,16 @@ const faqStructuredData =
                   <h2 class="plan__title">{plan.title}</h2>
 
                   <p class="plan__price">{priceFor(plan)}</p>
-                  {plan.priceNote && <p class="plan__pricenote t-small">{plan.priceNote}</p>}
+                  {plan.priceNote && <p class="plan__pricenote t-small">{fill(plan.priceNote, tokens)}</p>}
 
-                  {plan.body && <p class="plan__body t-prose">{withPrice(plan.body, price)}</p>}
+                  {plan.body && <p class="plan__body t-prose">{fill(plan.body, tokens)}</p>}
 
                   {plan.includes?.length > 0 && (
                     <ul class="plan__includes" role="list">
                       {plan.includes.map((item: string) => (
                         <li>
                           <Glyph name="check" size={15} class="plan__check" />
-                          <span>{withPrice(item, price)}</span>
+                          <span>{fill(item, tokens)}</span>
                         </li>
                       ))}
                     </ul>
@@ -123,7 +133,19 @@ const faqStructuredData =
                       ) : (
                         <p class="plan__soon t-small">
                           <span class="plan__soondot" aria-hidden="true" />
-                          The signed build is on its way
+                          On sale here soon
+                        </p>
+                      ))}
+
+                    {action === 'macappstore' &&
+                      (macAppStoreUrl ? (
+                        <a class="btn btn--accent" href={macAppStoreUrl}>
+                          Get it on the Mac App Store
+                        </a>
+                      ) : (
+                        <p class="plan__soon t-small">
+                          <span class="plan__soondot" aria-hidden="true" />
+                          Coming to the Mac App Store
                         </p>
                       ))}
 
@@ -151,7 +173,7 @@ const faqStructuredData =
 
           {page?.sameAppNote && (
             <p class="plans__note t-small" data-reveal>
-              {withPrice(page.sameAppNote, price)}
+              {fill(page.sameAppNote, tokens)}
             </p>
           )}
         </div>
@@ -166,7 +188,21 @@ const faqStructuredData =
         <div class="shell split">
           <h2 class="t-h2 split__heading" data-reveal>{page.licenceHeading}</h2>
           <div data-reveal style="--reveal-delay:80ms">
-            <PortableText value={page.licenceBody} />
+            <PortableText value={fillBlocks(page.licenceBody, tokens)} />
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- ================= Refunds ================= -->
+  {
+    page?.refundsHeading && (
+      <section class="section section--ruled" id="refunds">
+        <div class="shell split">
+          <h2 class="t-h2 split__heading" data-reveal>{page.refundsHeading}</h2>
+          <div data-reveal style="--reveal-delay:80ms">
+            <PortableText value={fillBlocks(page.refundsBody, tokens)} />
           </div>
         </div>
       </section>
@@ -175,16 +211,16 @@ const faqStructuredData =
 
   <!-- ================= Questions ================= -->
   {
-    page?.faq?.length > 0 && (
+    faq.length > 0 && (
       <section class="section section--ruled">
         <div class="shell split">
           <h2 class="t-h2 split__heading" data-reveal>{page.faqHeading ?? 'Questions'}</h2>
 
           <div class="faq" data-reveal style="--reveal-delay:80ms">
-            {page.faq.map((item: any, i: number) => (
+            {faq.map((item: any, i: number) => (
               <details class="faq__item" open={i === 0}>
                 <summary class="faq__question">
-                  <span>{withPrice(item.question, price)}</span>
+                  <span>{item.question}</span>
                   <span class="faq__toggle" aria-hidden="true" />
                 </summary>
                 <div class="faq__answer">
@@ -245,7 +281,7 @@ const faqStructuredData =
     }
   }
 
-  @media (min-width: 70rem) {
+  @media (min-width: 76rem) {
     .plans {
       grid-template-columns: repeat(var(--plan-count, 3), minmax(0, 1fr));
     }
@@ -296,7 +332,8 @@ const faqStructuredData =
     font-variant-numeric: proportional-nums;
   }
 
-  .plan--signed .plan__price {
+  .plan--signed .plan__price,
+  .plan--appstore .plan__price {
     background: linear-gradient(180deg, var(--sky-light) -20%, var(--accent) 70%);
     -webkit-background-clip: text;
     background-clip: text;
